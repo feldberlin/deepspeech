@@ -1,0 +1,8 @@
+#!/bin/bash
+#
+# zmq needs to be rebuilt for oder macos versions. If there are issues
+# installing via bin/install-dev, then run this, then bin/install-dev again.
+
+source .venv/bin/activate
+pip uninstall pyzmq
+pip install --no-binary=:all: pyzmq
