@@ -3,6 +3,5 @@ __pycache__/
 .ipynb_checkpoints/
 wandb/
 
-config.yaml
 checkpoints.best.*
 todo.md
