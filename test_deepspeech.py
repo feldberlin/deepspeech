@@ -1,11 +1,12 @@
+import os
+import pytest
+
 import numpy as np
 import torch
 from torch.nn import functional as F
 from torch.autograd.functional import jacobian
 
-from deepspeech import model, utils, datasets
-
-import pytest
+from deepspeech import model, utils, datasets, train
 
 
 def test_hparams():
@@ -24,13 +25,13 @@ def test_hparams_override():
 def test_deepspeech_fwd():
     batch_size = 3
     p = model.HParams()
+    augment = datasets.spec_augment(p)
     m = model.DeepSpeech(p)
-    x, y, nx, ny = datasets.batch(p)(
-        [torch.rand(p.sampling_rate) for x in range(batch_size)],
-        np.random.choice(['yes', 'no'], batch_size)
-    )
 
-    x = datasets.spec_augment(p)(x)
+    # follow the same order as in data loader and trainer
+    x = [augment(torch.rand(p.sampling_rate)) for x in range(batch_size)]
+    y = np.random.choice(['yes', 'no'], batch_size)
+    x, y, nx, ny = datasets.batch(p)(zip(x, y))
     x, _ = m.forward(x, y, nx, ny)
 
     assert x.shape == (
@@ -63,3 +64,22 @@ def test_deepspeech_modules_registered():
     ]
 
     assert got == want
+
+
+@pytest.mark.integration
+def test_deepspeech_train():
+
+    # do not call home to wandb
+    os.environ['WANDB_MODE'] = 'dryrun'
+
+    # hyperparams
+    p = model.HParams(graphemes=['א', 'כ', 'ל', 'ן', ' ', '	'])
+    tp = train.HParams(max_epochs=1, batch_size=8)
+
+    # build
+    m = model.DeepSpeech(p)
+    ds = datasets.yesno(p)
+
+    # train
+    t = train.Trainer(m, ds, None, tp, None)
+    t.train()

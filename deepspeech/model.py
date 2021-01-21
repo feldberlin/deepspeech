@@ -87,7 +87,7 @@ class HParams(utils.HParams):
     graphemes = np.array([c for c in 'abcdefghijklmnopqrstuvwxyz -	'])
 
     # root directory to persist datsets in
-    datasets_dir = None
+    datasets_dir = '/tmp'
 
     # apply https://arxiv.org/abs/1904.08779
     spec_augmented = True

@@ -76,7 +76,7 @@ class Trainer:
                 pin_memory=True,
                 batch_size=cfg.batch_size,
                 num_workers=cfg.num_workers,
-                collate_fn=datasets.batch(self.cfg)
+                collate_fn=datasets.batch(self.model_cfg)
             )
 
             losses = []
@@ -86,7 +86,7 @@ class Trainer:
                 else enumerate(loader)
             )
 
-            for it, (x, y) in pbar:
+            for it, (x, y, nx, ny) in pbar:
 
                 # place
                 x = x.to(self.device)
@@ -94,7 +94,7 @@ class Trainer:
 
                 with torch.set_grad_enabled(is_train):
                     with amp.autocast(enabled=model_cfg.mixed_precision):
-                        logits, loss = model(x, y)
+                        logits, loss = model(x, y, nx, ny)
 
                     loss = loss.mean()  # collect gpus
                     losses.append(loss.item())

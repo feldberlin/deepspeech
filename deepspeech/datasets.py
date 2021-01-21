@@ -9,25 +9,19 @@ from deepspeech import utils
 # data
 
 def yesno(cfg):
-    return audio.datasets.YESNO(
-        root=cfg.datasets_dir,
-        shuffle=True,
-        download=cfg.datasets_dir is not None)
+    return SpecAugmented(YesNo(cfg), cfg, yat=2)
 
 
 def librispeech(cfg):
-    return audio.datasets.LIBRISPEECH(
-        root=cfg.datasets_dir,
-        shuffle=True,
-        download=cfg.datasets_dir is not None)
+    root = cfg.datasets_dir
+    data = audio.datasets.LIBRISPEECH(root=root, download=True)
+    return SpecAugmented(data, cfg)
 
 
 def commonvoice(cfg, lang='english'):
-    return audio.datasets.COMMONVOICE(
-        root=cfg.datasets_dir,
-        url=lang,
-        shuffle=True,
-        download=cfg.datasets_dir is not None)
+    root = cfg.datasets_dir
+    data = audio.datasets.COMMONVOICE(root=root, url=lang, download=True)
+    return SpecAugmented(data, cfg)
 
 
 # transforms
@@ -48,15 +42,26 @@ def spec_augment(cfg, train=True):
 # batching
 
 def batch(cfg):
-    "numericalize and pad into batch"
+    "numericalize and pad into a batch"
 
-    def fn(x, y):
-      nx = [len(el) for el in x]
-      ny = [len(el) for el in y]
-      y = utils.encode_texts(y, cfg.graphemes_idx())
-      x = pad_sequence(x, batch_first=True, padding_value=0)
-      y = pad_sequence(y, batch_first=True, padding_value=cfg.blank_idx())
-      return x, y, nx, ny
+    def fn(batch):
+        x, y = zip(*batch)  # H, W melgrams, strings
+        assert x[0].ndim == 2
+
+        # lengths
+        nx = [el.shape[1] for el in x]
+        ny = [len(el) for el in y]
+
+        # xs
+        x = [el.permute(1, 0) for el in x]  # W, H needed for padding
+        x = pad_sequence(x, batch_first=True, padding_value=0)
+        x = x.permute(0, 2, 1)
+
+        # ys
+        y = utils.encode_texts(y, cfg.graphemes_idx())
+        y = pad_sequence(y, batch_first=True, padding_value=cfg.blank_idx())
+
+        return x, y, nx, ny
 
     return fn
 
@@ -65,18 +70,39 @@ def batch(cfg):
 
 class SpecAugmented(Dataset):
 
-    def __init__(self, data, cfg):
+    def __init__(self, data, cfg, xat=0, yat=1):
         self.spec_augment = spec_augment(cfg)
         self.data = data
         self.cfg = cfg
+        self.xat = xat
+        self.yat = yat
 
     def __len__(self):
-        return len(self.data[0])
+        return len(self.data[self.xat])
 
     def __getitem__(self, idx):
-        x, y = self.data[0][idx], self.data[1][idx]
+        x, y = self.data[idx][self.xat], self.data[idx][self.yat]
         if self.cfg.spec_augmented: x = self.spec_augment(x)
         return x, y
 
     def __repr__(self):
         return f'SpecAugmented(augmented: { self.cfg.spec_augmented })'
+
+
+class YesNo(Dataset):
+
+    def __init__(self, cfg):
+        self.data = audio.datasets.YESNO(root=cfg.datasets_dir, download=True)
+
+    def __len__(self):
+        return len(self.data)
+
+    def __getitem__(self, idx):
+        "Backwards Hebrew yes and no."
+        x, fq, y = self.data[idx]
+        x = torch.squeeze(x, 0)
+        y = ' '.join(['ןכ' if el else 'אל' for el in y])
+        return x, fq, y
+
+    def __repr__(self):
+        return f'YesNo()'
