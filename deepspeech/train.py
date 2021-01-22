@@ -27,6 +27,7 @@ class Trainer:
         self.testset = testset
         self.cfg = cfg
         self.model_cfg = model.cfg
+        self.collate_fn = datasets.batch(model.cfg)
         self.callback = callback
         self.device = 'cpu'
         if torch.cuda.is_available():
@@ -76,7 +77,7 @@ class Trainer:
                 pin_memory=True,
                 batch_size=cfg.batch_size,
                 num_workers=cfg.num_workers,
-                collate_fn=datasets.batch(self.model_cfg)
+                collate_fn=self.collate_fn
             )
 
             losses = []

@@ -23,7 +23,7 @@ def test_hparams_override():
 
 
 def test_deepspeech_fwd():
-    batch_size = 3
+    batch_size = 5
     p = model.HParams()
     augment = datasets.spec_augment(p)
     m = model.DeepSpeech(p)

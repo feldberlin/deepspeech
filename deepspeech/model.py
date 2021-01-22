@@ -30,8 +30,11 @@ class DeepSpeech(nn.Module):
         self.dense_a = nn.Linear(cfg.n_hidden, cfg.n_hidden)
         self.dense_b = nn.Linear(cfg.n_hidden, cfg.n_hidden)
 
-        # using a gru instead of vanilla rnn in paper
-        self.gru = nn.GRU(cfg.n_hidden, cfg.n_hidden, bidirectional=True)
+        # gru instead of vanilla rnn in paper
+        self.gru = nn.GRU(cfg.n_hidden, cfg.n_hidden,
+                          bidirectional=True, batch_first=True)
+
+        # head
         self.dense_end = nn.Linear(cfg.n_hidden, cfg.n_graphemes())
 
         # load a checkpoint
@@ -42,18 +45,16 @@ class DeepSpeech(nn.Module):
         "(N, H, W) batches of melspecs, (N, W) batches of graphemes."
 
         with amp.autocast(enabled=self.cfg.mixed_precision):
-            N, H, W = x.shape
+            B, H, W = x.shape
             x = F.pad(x, (self.cfg.padding(), self.cfg.padding(), 0, 0))
             x = F.relu(self.conv(x.unsqueeze(1)))  # add empty channel dim
             x = torch.squeeze(x, 2).permute(0, 2, 1)  # B, W, C into dense
             x = F.relu(self.dense_a(x))
             x = F.relu(self.dense_b(x))
-            x = x.permute(1, 0, 2)  # W, B, C into gru
             x, _ = self.gru(x)
             x = F.relu(x)
             x = torch.split(x, self.cfg.n_hidden, dim=-1)
             x = torch.sum(torch.stack(x, dim=-1), dim=-1)
-            x = x.permute(1, 0, 2)  # B, W, C into dense
             x = F.relu(self.dense_end(x))
             x = F.log_softmax(x, dim=2)
             x = x.permute(1, 0, 2)  # W, B, C
