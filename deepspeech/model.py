@@ -50,7 +50,7 @@ class DeepSpeech(nn.Module):
             # first convolution, removes H
             x = F.pad(x, (self.cfg.padding(), self.cfg.padding(), 0, 0))
             x = F.relu(self.conv(x.unsqueeze(1)))  # add empty channel dim
-            x = torch.squeeze(x, 2).permute(0, 2, 1)  # B, W, C into dense
+            x = torch.squeeze(x, 2).permute(0, 2, 1)  # B, W, C
 
             # dense, gru
             x = F.relu(self.dense_a(x))
@@ -141,3 +141,10 @@ class HParams(utils.HParams):
     def frame_lengths(self, in_lengths):
         lengths = [self.n_downsampled_frames(x) for x in in_lengths]
         return torch.tensor(lengths)
+
+    def mel_config(self):
+        return {
+            'sample_rate': self.sampling_rate,
+            'n_fft': self.n_fft(),
+            'n_mels': self.n_mels,
+        }

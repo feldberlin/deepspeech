@@ -28,7 +28,7 @@ def commonvoice(cfg, lang='english'):
 
 def spec_augment(cfg, train=True):
     tt = nn.Sequential(
-        audio.transforms.MelSpectrogram(sample_rate=cfg.sampling_rate, n_fft=cfg.n_fft(), n_mels=cfg.n_mels),
+        audio.transforms.MelSpectrogram(**cfg.mel_config()),
         audio.transforms.FrequencyMasking(freq_mask_param=cfg.max_fq_mask),
         audio.transforms.TimeMasking(time_mask_param=cfg.max_time_mask)
     )
@@ -69,6 +69,10 @@ def batch(cfg):
 # datasets
 
 class SpecAugmented(Dataset):
+    """SpecAugmentation as per https://arxiv.org/abs/1904.08779. Warping has
+    not been implemented because it has a negligible impact and is not
+    implemented in torchaudio.
+    """
 
     def __init__(self, data, cfg, xat=0, yat=1):
         self.spec_augment = spec_augment(cfg)
@@ -90,6 +94,10 @@ class SpecAugmented(Dataset):
 
 
 class YesNo(Dataset):
+    """YesNo is a 60 example test dataset. Targets have been converted to
+    hebrew text, rather than the original ordinals. Some details of RTL have
+    been ignored.
+    """
 
     def __init__(self, cfg):
         self.data = audio.datasets.YESNO(root=cfg.datasets_dir, download=True)
@@ -98,7 +106,7 @@ class YesNo(Dataset):
         return len(self.data)
 
     def __getitem__(self, idx):
-        "Backwards Hebrew yes and no."
+        "backwards hebrew yes and no."
         x, fq, y = self.data[idx]
         x = torch.squeeze(x, 0)
         y = ' '.join(['ןכ' if el else 'אל' for el in y])
