@@ -82,7 +82,7 @@ class SpecAugmented(Dataset):
         self.yat = yat
 
     def __len__(self):
-        return len(self.data[self.xat])
+        return len(self.data)
 
     def __getitem__(self, idx):
         x, y = self.data[idx][self.xat], self.data[idx][self.yat]

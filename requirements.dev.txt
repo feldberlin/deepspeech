@@ -4,5 +4,5 @@ jupyter==1.0.0
 matplotlib==3.3.2
 mypy==0.790
 pytest==6.1.2
-wandb==0.10.11
+wandb==0.10.14
 ipympl==0.5.8
