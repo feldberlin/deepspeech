@@ -66,11 +66,10 @@ class DeepSpeech(nn.Module):
             x = F.log_softmax(x, dim=2)
 
             # loss
-            x = x.permute(1, 0, 2)  # W, B, C
             nx = self.cfg.frame_lengths(nx)
-            ny = torch.tensor(ny)
+            loss = F.ctc_loss(x.permute(1, 0, 2), y, nx, ny)  # W, B, C
 
-            return x, F.ctc_loss(x, y, nx, ny)
+            return x, loss
 
 
 class HParams(utils.HParams):

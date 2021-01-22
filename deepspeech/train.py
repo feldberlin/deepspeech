@@ -89,9 +89,11 @@ class Trainer:
 
             for it, (x, y, nx, ny) in pbar:
 
-                # place
+                # placement
                 x = x.to(self.device)
                 y = y.to(self.device)
+                nx = nx.to(self.device)
+                ny = ny.to(self.device)
 
                 with torch.set_grad_enabled(is_train):
                     with amp.autocast(enabled=model_cfg.mixed_precision):

@@ -35,8 +35,8 @@ def test_deepspeech_fwd():
     x, _ = m.forward(x, y, nx, ny)
 
     assert x.shape == (
-        p.n_downsampled_frames(),
         batch_size,
+        p.n_downsampled_frames(),
         p.n_graphemes()
     )
 

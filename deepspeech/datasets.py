@@ -49,8 +49,8 @@ def batch(cfg):
         assert x[0].ndim == 2
 
         # lengths
-        nx = [el.shape[1] for el in x]
-        ny = [len(el) for el in y]
+        nx = torch.tensor([el.shape[1] for el in x])
+        ny = torch.tensor([len(el) for el in y])
 
         # xs
         x = [el.permute(1, 0) for el in x]  # W, H needed for padding
