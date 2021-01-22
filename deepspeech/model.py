@@ -46,19 +46,31 @@ class DeepSpeech(nn.Module):
 
         with amp.autocast(enabled=self.cfg.mixed_precision):
             B, H, W = x.shape
+
+            # first convolution, removes H
             x = F.pad(x, (self.cfg.padding(), self.cfg.padding(), 0, 0))
             x = F.relu(self.conv(x.unsqueeze(1)))  # add empty channel dim
             x = torch.squeeze(x, 2).permute(0, 2, 1)  # B, W, C into dense
+
+            # dense, gru
             x = F.relu(self.dense_a(x))
             x = F.relu(self.dense_b(x))
-            x, _ = self.gru(x)
-            x = F.relu(x)
+            x = F.relu(self.gru(x)[0])
+
+            # sum over last dimension, fwd and bwd
             x = torch.split(x, self.cfg.n_hidden, dim=-1)
             x = torch.sum(torch.stack(x, dim=-1), dim=-1)
+
+            # head
             x = F.relu(self.dense_end(x))
             x = F.log_softmax(x, dim=2)
+
+            # loss
             x = x.permute(1, 0, 2)  # W, B, C
-            return x, F.ctc_loss(x, y, self.cfg.frame_lengths(nx), torch.tensor(ny))
+            nx = self.cfg.frame_lengths(nx)
+            ny = torch.tensor(ny)
+
+            return x, F.ctc_loss(x, y, nx, ny)
 
 
 class HParams(utils.HParams):
