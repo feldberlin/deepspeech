@@ -20,7 +20,7 @@ attempt to match the mozilla implementation.
 
 ## Common voice
 
-On DeepSpeech 0.9.3 [^1]:
+On DeepSpeech 0.9.3 <sup>[1](#footnote1)</sup>:
 
 > The acoustic models were trained on American English with synthetic noise
 > augmentation and the .pbmm model achieves an 7.06% word error rate on the
@@ -28,4 +28,4 @@ On DeepSpeech 0.9.3 [^1]:
 
 ## References
 
-[^1]: [DeepSpeech 0.9.3](https://github.com/mozilla/DeepSpeech/releases/tag/v0.9.3)
+<a name="footnote1">1</a>: [DeepSpeech 0.9.3](https://github.com/mozilla/DeepSpeech/releases/tag/v0.9.3)
