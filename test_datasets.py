@@ -21,11 +21,11 @@ def test_batch_collation():
 
 def test_spec_augmented_dataset():
     p = model.HParams()
-    data = (
+    data = zip(
         [torch.rand(p.sampling_rate) for x in range(3)],
         ['yes', 'no', 'yes']
     )
 
-    d = datasets.SpecAugmented(data, p)
+    d = datasets.SpecAugmented(dict(data), p)
     assert len(d) == 3
     assert str(d) == 'SpecAugmented(augmented: True)'
