@@ -28,4 +28,4 @@ def test_spec_augmented_dataset():
 
     d = datasets.SpecAugmented(dict(data), p)
     assert len(d) == 3
-    assert str(d) == 'SpecAugmented(augmented: True)'
+    assert str(d) == 'SpecAugmented()'

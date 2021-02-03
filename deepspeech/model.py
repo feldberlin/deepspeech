@@ -101,9 +101,6 @@ class HParams(utils.HParams):
     # root directory to persist datsets in
     datasets_dir = '/tmp'
 
-    # apply https://arxiv.org/abs/1904.08779
-    spec_augmented = True
-
     # max specaugment frequency mask height, in number number of bins
     max_fq_mask = 20
 

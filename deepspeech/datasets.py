@@ -77,7 +77,6 @@ class SpecAugmented(Dataset):
     def __init__(self, data, cfg, xat=0, yat=1):
         self.spec_augment = spec_augment(cfg)
         self.data = data
-        self.cfg = cfg
         self.xat = xat
         self.yat = yat
 
@@ -85,12 +84,12 @@ class SpecAugmented(Dataset):
         return len(self.data)
 
     def __getitem__(self, idx):
-        x, y = self.data[idx][self.xat], self.data[idx][self.yat]
-        if self.cfg.spec_augmented: x = self.spec_augment(x)
-        return x, y
+        x = self.data[idx][self.xat]
+        y = self.data[idx][self.yat]
+        return self.spec_augment(x), y
 
     def __repr__(self):
-        return f'SpecAugmented(augmented: { self.cfg.spec_augmented })'
+        return f'SpecAugmented()'
 
 
 class YesNo(Dataset):
