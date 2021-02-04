@@ -103,10 +103,10 @@ class HParams(utils.HParams):
     datasets_dir = '/tmp'
 
     # max specaugment frequency mask height, in number number of bins
-    max_fq_mask = 20
+    max_fq_mask = 10
 
     # max specaugment time mask width, in number number of frames
-    max_time_mask = 40
+    max_time_mask = 30
 
     def __init__(self, **kwargs):
         for k, v in kwargs.items():
