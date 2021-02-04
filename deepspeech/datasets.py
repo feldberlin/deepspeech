@@ -107,7 +107,7 @@ class YesNo(Dataset):
         return torch.squeeze(x, 0), self.decode(y)
 
     def decode(self, y):
-        return ' '.join(['ןכ' if el == 1 else 'אל' for el in y])[::-1]
+        return ' '.join(['כן' if el == 1 else 'לא' for el in y])[::-1]
 
     def __repr__(self):
         return f'YesNo()'
