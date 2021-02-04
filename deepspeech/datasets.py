@@ -92,8 +92,7 @@ class SpecAugmented(Dataset):
 
 class YesNo(Dataset):
     """YesNo is a 60 example test dataset. Targets have been converted to
-    backwards hebrew text, rather than the original ordinals. Some details of
-    RTL have been ignored.
+    backwards hebrew text, rather than the original ordinals.
     """
 
     def __init__(self, cfg):
