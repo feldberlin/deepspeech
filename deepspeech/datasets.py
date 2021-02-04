@@ -9,7 +9,7 @@ from deepspeech import utils
 # data
 
 def yesno(cfg):
-    return SpecAugmented(YesNo(cfg), cfg, yat=2)
+    return SpecAugmented(YesNo(cfg), cfg)
 
 
 def librispeech(cfg):
@@ -74,18 +74,16 @@ class SpecAugmented(Dataset):
     implemented in torchaudio.
     """
 
-    def __init__(self, data, cfg, xat=0, yat=1):
+    def __init__(self, data, cfg):
         self.spec_augment = spec_augment(cfg)
         self.data = data
-        self.xat = xat
-        self.yat = yat
 
     def __len__(self):
         return len(self.data)
 
     def __getitem__(self, idx):
-        x = self.data[idx][self.xat]
-        y = self.data[idx][self.yat]
+        x = self.data[idx][0]
+        y = self.data[idx][1]
         return self.spec_augment(x), y
 
     def __repr__(self):
@@ -105,8 +103,8 @@ class YesNo(Dataset):
         return len(self.data)
 
     def __getitem__(self, idx):
-        x, fq, y = self.data[idx]
-        return torch.squeeze(x, 0), fq, self.decode(y)
+        x, _, y = self.data[idx]
+        return torch.squeeze(x, 0), self.decode(y)
 
     def decode(self, y):
         return ' '.join(['ןכ' if el else 'אל' for el in y])
