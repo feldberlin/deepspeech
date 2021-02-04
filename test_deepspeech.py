@@ -13,8 +13,7 @@ def test_hparams():
     p = model.HParams()
     assert p.sampling_rate == 8000
     assert p.n_fft() == 160
-    assert p.n_frames() == 101
-    assert p.n_downsampled_frames() == 51
+    assert p.n_downsampled_frames(101) == 51
 
 
 def test_hparams_override():
@@ -36,7 +35,7 @@ def test_deepspeech_fwd():
 
     assert x.shape == (
         batch_size,
-        p.n_downsampled_frames(),
+        51,
         p.n_graphemes()
     )
 

@@ -128,13 +128,8 @@ class HParams(utils.HParams):
     def n_fft(self):
         return int(math.ceil(self.n_fft_ms * self.sampling_rate / 1000))
 
-    def n_frames(self, n_in=None):
-        if not n_in: n_in = self.sampling_rate
-        return int(math.ceil(n_in / (self.n_fft() / 2))) + 1
-
-    def n_downsampled_frames(self, n_in=None):
-        if not n_in: n_in = self.sampling_rate
-        return int(math.ceil(self.n_frames(n_in) / 2))
+    def n_downsampled_frames(self, n_in):
+        return int(math.ceil(n_in / self.stride))
 
     def frame_lengths(self, in_lengths):
         lengths = [self.n_downsampled_frames(x) for x in in_lengths]

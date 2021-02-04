@@ -48,7 +48,7 @@ def batch(cfg):
         x, y = zip(*batch)  # H, W melgrams, strings
         assert x[0].ndim == 2
 
-        # lengths
+        # lengths. nx in mel frames
         nx = torch.tensor([el.shape[1] for el in x])
         ny = torch.tensor([len(el) for el in y])
 
