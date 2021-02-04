@@ -2,6 +2,7 @@
 DeepSpeech https://arxiv.org/abs/1412.5567
 """
 
+from functools import lru_cache
 import math
 
 import numpy as np
@@ -96,7 +97,7 @@ class HParams(utils.HParams):
     stride = 2
 
     # graphemes. last char is blank
-    graphemes = np.array([c for c in 'abcdefghijklmnopqrstuvwxyz -	'])
+    graphemes = np.array([c for c in 'abcdefghijklmnopqrstuvwxyz -ε'])
 
     # root directory to persist datsets in
     datasets_dir = '/tmp'
@@ -114,8 +115,9 @@ class HParams(utils.HParams):
     def padding(self):
         return self.kernel_width // 2
 
+    @lru_cache()
     def graphemes_idx(self):
-        return dict(zip(self.graphemes, range(len(self.graphemes))))
+        return {x:i for i,x in enumerate(self.graphemes)}
 
     def blank_idx(self):
         return len(self.graphemes) #  the last char in graphemes

@@ -1,5 +1,5 @@
 import torch
-import torchaudio as audio
+import torchaudio as ta
 import torch.nn as nn
 from torch.nn.utils.rnn import pad_sequence
 from torch.utils.data import Dataset
@@ -14,13 +14,13 @@ def yesno(cfg):
 
 def librispeech(cfg):
     root = cfg.datasets_dir
-    data = audio.datasets.LIBRISPEECH(root=root, download=True)
+    data = ta.datasets.LIBRISPEECH(root=root, download=True)
     return SpecAugmented(data, cfg)
 
 
 def commonvoice(cfg, lang='english'):
     root = cfg.datasets_dir
-    data = audio.datasets.COMMONVOICE(root=root, url=lang, download=True)
+    data = ta.datasets.COMMONVOICE(root=root, url=lang, download=True)
     return SpecAugmented(data, cfg)
 
 
@@ -28,9 +28,9 @@ def commonvoice(cfg, lang='english'):
 
 def spec_augment(cfg, train=True):
     tt = nn.Sequential(
-        audio.transforms.MelSpectrogram(**cfg.mel_config()),
-        audio.transforms.FrequencyMasking(freq_mask_param=cfg.max_fq_mask),
-        audio.transforms.TimeMasking(time_mask_param=cfg.max_time_mask)
+        ta.transforms.MelSpectrogram(**cfg.mel_config()),
+        ta.transforms.FrequencyMasking(freq_mask_param=cfg.max_fq_mask),
+        ta.transforms.TimeMasking(time_mask_param=cfg.max_time_mask)
     )
 
     if train:
@@ -94,22 +94,22 @@ class SpecAugmented(Dataset):
 
 class YesNo(Dataset):
     """YesNo is a 60 example test dataset. Targets have been converted to
-    hebrew text, rather than the original ordinals. Some details of RTL have
-    been ignored.
+    backwards hebrew text, rather than the original ordinals. Some details of
+    RTL have been ignored.
     """
 
     def __init__(self, cfg):
-        self.data = audio.datasets.YESNO(root=cfg.datasets_dir, download=True)
+        self.data = ta.datasets.YESNO(root=cfg.datasets_dir, download=True)
 
     def __len__(self):
         return len(self.data)
 
     def __getitem__(self, idx):
-        "backwards hebrew yes and no."
         x, fq, y = self.data[idx]
-        x = torch.squeeze(x, 0)
-        y = ' '.join(['ןכ' if el else 'אל' for el in y])
-        return x, fq, y
+        return torch.squeeze(x, 0), fq, self.decode(y)
+
+    def decode(self, y):
+        return ' '.join(['ןכ' if el else 'אל' for el in y])
 
     def __repr__(self):
         return f'YesNo()'
