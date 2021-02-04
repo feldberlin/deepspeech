@@ -30,6 +30,14 @@ def test_decode_texts():
     assert np.array_equal(got, np.array(['a', 'b']))
 
 
+# metrics
+
+def test_levenshtein():
+    a = 'this here is a tricky sentence'
+    b = 'this hore is tricky a sentence'
+    assert utils.levenshtein(a, b) == 3
+
+
 # config
 
 def test_hparams_dict():
