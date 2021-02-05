@@ -42,7 +42,7 @@ class DeepSpeech(nn.Module):
         if run_path:
             utils.load_chkpt(self, run_path)
 
-    def forward(self, x, y, nx, ny):
+    def forward(self, x, nx, y=None, ny=None):
         "(N, H, W) batches of melspecs, (N, W) batches of graphemes."
 
         with amp.autocast(enabled=self.cfg.mixed_precision):
@@ -67,8 +67,10 @@ class DeepSpeech(nn.Module):
             x = F.log_softmax(x, dim=2)
 
             # loss
-            nx = self.cfg.frame_lengths(nx)
-            loss = F.ctc_loss(x.permute(1, 0, 2), y, nx, ny)  # W, B, C
+            loss = None
+            if y is not None and ny is not None:
+                nx = self.cfg.frame_lengths(nx)
+                loss = F.ctc_loss(x.permute(1, 0, 2), y, nx, ny)  # W, B, C
 
             return x, loss
 
