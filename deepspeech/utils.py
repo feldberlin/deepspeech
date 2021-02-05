@@ -62,13 +62,13 @@ class Metrics():
 
         # total word edits in batch
         self.n_word_edits += sum([levenshtein(a.split(), b.split())
-                            for a, b
-                            in zip(x, y)])
+                                  for a, b
+                                  in zip(x, y)])
 
         # total char edits in batch
         self.n_char_edits += sum([levenshtein(list(a), list(b))
-                            for a, b
-                            in zip(x, y)])
+                                  for a, b
+                                  in zip(x, y)])
 
         # counts
         self.n_words += sum([l.count(' ') + 1 for l in x])

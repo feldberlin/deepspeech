@@ -44,9 +44,10 @@ def test_metrics():
 
 
 def test_metrics_accumulation():
-    m = utils.Metrics()
     x = ['this here is a tricky sentence', 'the lights are green']
     y = ['this hore is tricky a sentence', 'the lights are red']
+
+    m = utils.Metrics()
     res = m(x[:1], y[:1])
     res = m(x[1:], y[1:])
 
