@@ -123,22 +123,22 @@ class Trainer:
                 else:
 
                     # accumulate test metrics
-                    x = decode.decode_argmax(model_cfg, x)
-                    y = utils.decode_texts(model_cfg, y)
-                    metrics.accumulate(x, y)
+                    xhat = decode.decode_argmax(model_cfg, logits)
+                    y = utils.decode_texts(y.cpu(), model_cfg)
+                    metrics.accumulate(xhat, y)
 
-            return float(np.mean(losses))
+            return float(np.mean(losses)), metrics
 
         best = defaultdict(lambda: float('inf'))
         for epoch in range(cfg.max_epochs):
 
-            train_loss = run_epoch('train')
+            train_loss, metrics = run_epoch('train')
             if train_loss < best['train']:
                 best['train'] = train_loss
                 self.checkpoint('best.train')
 
             if self.testset is not None:
-                test_loss = run_epoch('test')
+                test_loss, metrics = run_epoch('test')
                 wandb.log({'test loss': test_loss})
                 wandb.log({'test metrics': metrics.to_dict()})
                 if test_loss < best['test']:
