@@ -37,7 +37,20 @@ def test_metrics():
     x = ['this here is a tricky sentence', 'the lights are green']
     y = ['this hore is tricky a sentence', 'the lights are red']
 
-    assert utils.metrics()(x, y) == {
+    assert utils.Metrics()(x, y) == {
+        'wer': (3 + 1) / (6 + 4),
+        'cer': (5 + 3) / (30 + 20),
+    }
+
+
+def test_metrics_accumulation():
+    m = utils.Metrics()
+    x = ['this here is a tricky sentence', 'the lights are green']
+    y = ['this hore is tricky a sentence', 'the lights are red']
+    res = m(x[:1], y[:1])
+    res = m(x[1:], y[1:])
+
+    assert res == {
         'wer': (3 + 1) / (6 + 4),
         'cer': (5 + 3) / (30 + 20),
     }
