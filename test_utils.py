@@ -60,7 +60,7 @@ def test_metrics_accumulation():
 def test_levenshtein():
     a = 'this here is a tricky sentence'
     b = 'this hore is tricky a sentence'
-    assert utils.levenshtein(a, b) == 3
+    assert utils.levenshtein(a.split(), b.split()) == 3
 
 
 # config
