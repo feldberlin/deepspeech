@@ -14,7 +14,7 @@ import torch
 import torch.cuda.amp as amp
 from torch.utils.data.dataloader import DataLoader
 
-from deepspeech import utils, datasets
+from deepspeech import utils, datasets, decode
 
 
 class Trainer:
