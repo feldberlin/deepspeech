@@ -51,9 +51,36 @@ def load_chkpt(m, run_path):
 
 # metrics
 
-def levenshtein(a,b):
-    a = a.split()
-    b = b.split()
+
+def metrics():
+    n_word_edits, n_words = 0, 0
+    n_char_edits, n_chars = 0, 0
+
+    def fn(x, y):
+
+        # counts
+        n_words = sum([l.count(' ') + 1 for l in x])
+        n_chars = sum([len(l) for l in x])
+
+        # total word edits in batch
+        n_word_edits = sum([levenshtein(a.split(), b.split())
+                            for a, b
+                            in zip(x, y)])
+
+        # total char edits in batch
+        n_char_edits = sum([levenshtein(list(a), list(b))
+                            for a, b
+                            in zip(x, y)])
+
+        return {
+            'wer': n_word_edits / n_words,
+            'cer': n_char_edits / n_chars,
+        }
+
+    return fn
+
+
+def levenshtein(a, b):
     n, m = len(a), len(b)
     if n > m:
         a, b = b, a

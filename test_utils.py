@@ -32,6 +32,17 @@ def test_decode_texts():
 
 # metrics
 
+
+def test_metrics():
+    x = ['this here is a tricky sentence', 'the lights are green']
+    y = ['this hore is tricky a sentence', 'the lights are red']
+
+    assert utils.metrics()(x, y) == {
+        'wer': (3 + 1) / (6 + 4),
+        'cer': (5 + 3) / (30 + 20),
+    }
+
+
 def test_levenshtein():
     a = 'this here is a tricky sentence'
     b = 'this hore is tricky a sentence'

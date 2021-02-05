@@ -73,7 +73,7 @@ class Trainer:
             data = self.trainset if is_train else self.testset
             loader = DataLoader(
                 data,
-                shuffle=True,
+                shuffle=is_train,
                 pin_memory=True,
                 batch_size=cfg.batch_size,
                 num_workers=cfg.num_workers,
@@ -150,7 +150,7 @@ class HParams(utils.HParams):
     max_epochs = 10
 
     # number of examples in a single batch
-    batch_size = 64
+    batch_size = 128
 
     # the learning rate
     learning_rate = 3e-4
