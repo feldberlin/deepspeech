@@ -1,12 +1,13 @@
 import torch
 import torchaudio as ta
 import torch.nn as nn
+import torch.utils.data.dataset as td
 from torch.nn.utils.rnn import pad_sequence
 from torch.utils.data import Dataset
 
 from deepspeech import utils
 
-# data
+# datasets
 
 def yesno(cfg):
     return SpecAugmented(YesNo(cfg), cfg)
@@ -22,6 +23,10 @@ def commonvoice(cfg, lang='english'):
     root = cfg.datasets_dir
     data = ta.datasets.COMMONVOICE(root=root, url=lang, download=True)
     return SpecAugmented(data, cfg)
+
+
+def splits(cfg, dataset):
+    return td.random_split(dataset, [round(x * len(dataset)) for x in cfg.splits])
 
 
 # transforms

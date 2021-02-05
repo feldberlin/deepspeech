@@ -42,7 +42,6 @@ def onecycle(optimizer, n_examples, cfg):
 
 # lifecycle
 
-
 def load_chkpt(m, run_path):
     chkpt = wandb.restore('checkpoints.best.test', run_path=run_path)
     m.load_state_dict(torch.load(chkpt.name))
@@ -51,15 +50,13 @@ def load_chkpt(m, run_path):
 
 # metrics
 
-
 class Metrics():
 
     def __init__(self):
         self.n_word_edits, self.n_words = 0, 0
         self.n_char_edits, self.n_chars = 0, 0
 
-    def __call__(self, x, y):
-
+    def accumulate(self, x, y):
         # total word edits in batch
         self.n_word_edits += sum([levenshtein(a.split(), b.split())
                                   for a, b
@@ -74,6 +71,7 @@ class Metrics():
         self.n_words += sum([l.count(' ') + 1 for l in x])
         self.n_chars += sum([len(l) for l in x])
 
+    def to_dict(self):
         return {
             'wer': self.n_word_edits / self.n_words,
             'cer': self.n_char_edits / self.n_chars,
@@ -90,9 +88,9 @@ def levenshtein(a, b):
     for i in range(1, m + 1):
         previous, current = current, [i] + [0] * n
         for j in range(1, n + 1):
-            add, delete = previous[j] + 1, current[j - 1] + 1
-            change = previous[j - 1]
-            if a[j - 1] != b[i - 1]:
+            add, delete = previous[j] + 1, current[j-1] + 1
+            change = previous[j-1]
+            if a[j-1] != b[i-1]:
                 change = change + 1
             current[j] = min(add, delete, change)
 

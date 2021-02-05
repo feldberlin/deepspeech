@@ -1,5 +1,4 @@
 import torch
-import numpy as np
 
 from deepspeech import utils, model, train
 
@@ -8,26 +7,24 @@ from deepspeech import utils, model, train
 
 def test_encode_text():
     got = utils.encode_text('definitely mayb', model.HParams().graphemes_idx())
-    want = np.array([3, 4, 5, 8, 13, 8, 19, 4, 11, 24, 26, 12, 0, 24, 1])
-    assert np.array_equal(got, want)
+    want = [3, 4, 5, 8, 13, 8, 19, 4, 11, 24, 26, 12, 0, 24, 1]
+    assert got.tolist() == want
 
 
 def test_encode_texts():
-    got = utils.encode_texts(['a', 'b'], model.HParams().graphemes_idx())
-    assert np.array_equal(
-        np.array(got),
-        np.array([torch.tensor([0]), torch.tensor([1])])
-    )
+    got = utils.encode_texts(['aa', 'bb'], model.HParams().graphemes_idx())
+    want = [torch.tensor([0, 0]), torch.tensor([1, 1])]
+    assert torch.stack(got).equal(torch.stack(want))
 
 
 def test_decode_text():
-    encoded = np.array([3, 4, 5, 8, 13, 8, 19, 4, 11, 24, 26, 12, 0, 24, 1])
+    encoded = [3, 4, 5, 8, 13, 8, 19, 4, 11, 24, 26, 12, 0, 24, 1]
     assert utils.decode_text(encoded, model.HParams()) == 'definitely mayb'
 
 
 def test_decode_texts():
-    got = utils.decode_texts(np.array([[0], [1]]), model.HParams())
-    assert np.array_equal(got, np.array(['a', 'b']))
+    got = utils.decode_texts([[0, 1], [1, 0]], model.HParams())
+    assert got == ['ab', 'ba']
 
 
 # metrics
@@ -37,7 +34,10 @@ def test_metrics():
     x = ['this here is a tricky sentence', 'the lights are green']
     y = ['this hore is tricky a sentence', 'the lights are red']
 
-    assert utils.Metrics()(x, y) == {
+    m = utils.Metrics()
+    m.accumulate(x, y)
+
+    assert m.to_dict() == {
         'wer': (3 + 1) / (6 + 4),
         'cer': (5 + 3) / (30 + 20),
     }
@@ -48,10 +48,10 @@ def test_metrics_accumulation():
     y = ['this hore is tricky a sentence', 'the lights are red']
 
     m = utils.Metrics()
-    res = m(x[:1], y[:1])
-    res = m(x[1:], y[1:])
+    m.accumulate(x[:1], y[:1])
+    m.accumulate(x[1:], y[1:])
 
-    assert res == {
+    assert m.to_dict() == {
         'wer': (3 + 1) / (6 + 4),
         'cer': (5 + 3) / (30 + 20),
     }
@@ -92,7 +92,7 @@ def test_lrfinder():
     optimizer = torch.optim.SGD(m.parameters(), lr=1e-8)
     p = train.HParams(batch_size=1, max_epochs=1)
     schedule = utils.lrfinder(optimizer, 9, p)
-    assert np.isclose(schedule.gamma, 10.)
+    assert torch.isclose(torch.tensor(schedule.gamma), torch.tensor(10.))
 
 
 def test_onecycle():

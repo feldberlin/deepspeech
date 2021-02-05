@@ -21,14 +21,13 @@ class Trainer:
     """Train deepspeech with mixed precision on a one cycle schedule.
     """
 
-    def __init__(self, model, trainset, testset, cfg, callback):
+    def __init__(self, model, trainset, testset, cfg):
         self.model = model
         self.trainset = trainset
         self.testset = testset
         self.cfg = cfg
         self.model_cfg = model.cfg
         self.collate_fn = datasets.batch(model.cfg)
-        self.callback = callback
         self.device = 'cpu'
         if torch.cuda.is_available():
             self.device = torch.cuda.current_device()
@@ -71,6 +70,7 @@ class Trainer:
             is_train = split == 'train'
             model.train(is_train)
             data = self.trainset if is_train else self.testset
+            metrics = utils.Metrics()
             loader = DataLoader(
                 data,
                 shuffle=is_train,
@@ -113,15 +113,19 @@ class Trainer:
                     scaler.update()
                     schedule.step()
 
-                    # logging
+                    # train logging
                     lr = schedule.get_last_lr()[0]
                     msg = f'{epoch+1}:{it} loss {loss.item():.5f} lr {lr:e}'
                     pbar.set_description(msg)
                     wandb.log({'learning rate': lr})
                     wandb.log({'train loss': loss})
 
-                if self.callback and it % cfg.callback_fq == 0:
-                    self.callback.tick(self.model, self.trainset, self.testset)
+                else:
+
+                    # accumulate test metrics
+                    x = decode.decode_argmax(model_cfg, x)
+                    y = utils.decode_texts(model_cfg, y)
+                    metrics.accumulate(x, y)
 
             return float(np.mean(losses))
 
@@ -136,6 +140,7 @@ class Trainer:
             if self.testset is not None:
                 test_loss = run_epoch('test')
                 wandb.log({'test loss': test_loss})
+                wandb.log({'test metrics': metrics.to_dict()})
                 if test_loss < best['test']:
                     best['test'] = test_loss
                     self.checkpoint('best.test')
@@ -161,14 +166,14 @@ class HParams(utils.HParams):
     # training loop clips gradients
     grad_norm_clip = None
 
-    # how many steps before the callback is invoked
-    callback_fq = 8
-
     # how many data loader threads to use
     num_workers = 0
 
     # is this a learning rate finder run
     finder = False
+
+    # dataset splits
+    splits = [0.8, 0.2]
 
     def __init__(self, **kwargs):
         for k, v in kwargs.items():
