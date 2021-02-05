@@ -72,7 +72,7 @@ def test_deepspeech_train():
     os.environ['WANDB_MODE'] = 'dryrun'
 
     # hyperparams
-    p = model.HParams(graphemes=['א', 'כ', 'ל', 'ן', ' ', 'ε'])
+    p = model.HParams(graphemes=np.array(['א', 'כ', 'ל', 'ן', ' ', 'ε']))
     tp = train.HParams(max_epochs=1, batch_size=8)
 
     # build
