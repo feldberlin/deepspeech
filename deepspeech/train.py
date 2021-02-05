@@ -93,7 +93,7 @@ class Trainer:
                 x = x.to(self.device)
                 nx = nx.to(self.device)
 
-                if y and ny:
+                if y is not None and ny is not None:
                     y = y.to(self.device)
                     ny = ny.to(self.device)
 
@@ -127,7 +127,7 @@ class Trainer:
                     # accumulate test metrics
                     xhat = decode.decode_argmax(model_cfg, logits)
 
-                    if y:
+                    if y is not None:
                         y = utils.decode_texts(y.cpu(), model_cfg)
                         metrics.accumulate(xhat, y)
 
