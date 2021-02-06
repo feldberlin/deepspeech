@@ -187,4 +187,5 @@ class HParams(utils.HParams):
         return f'checkpoints.{name}'
 
     def n_steps(self, n_examples):
-        return math.ceil(n_examples * self.max_epochs / self.batch_size)
+        batch_size = min(n_examples, self.batch_size)
+        return math.ceil(n_examples / batch_size * self.max_epochs)
