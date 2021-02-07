@@ -188,4 +188,4 @@ class HParams(utils.HParams):
 
     def n_steps(self, n_examples):
         batch_size = min(n_examples, self.batch_size)
-        return math.ceil(n_examples / batch_size * self.max_epochs)
+        return math.ceil(n_examples / batch_size) * self.max_epochs
