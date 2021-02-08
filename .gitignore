@@ -5,5 +5,7 @@ wandb/
 
 nbs/scratch.ipynb
 
-checkpoints.best.*
+checkpoints.*
+config.yaml
+
 todo.md
