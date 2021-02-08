@@ -6,7 +6,7 @@ import torch.cuda.amp as amp
 from deepspeech import model, train, utils
 
 
-def predict(m, x, nx):
+def predict(m, x, nx, y=None, yn=None):
     "run a forward pass on a single batch"
 
     # cpu and gpu both work
@@ -20,8 +20,7 @@ def predict(m, x, nx):
         x = x.to(device)
         nx = nx.to(device)
         with torch.set_grad_enabled(False):
-            yhat, _ = m.forward(x, nx)
-        return yhat
+            return m.forward(x, nx, y, yn)
 
 
 # ctc utilities
