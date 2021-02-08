@@ -26,23 +26,23 @@ def predict(m, x, nx):
 
 # ctc utilities
 
-def ctc_collapse(cfg, x):
+def ctc_collapse(x, cfg):
     x = ''.join(c for c, _ in itertools.groupby(x))
     return x.replace(cfg.graphemes[-1], '')
 
 
-def ctc_collapse_batch(cfg, xs):
-    return [ctc_collapse(cfg, x) for x in xs]
+def ctc_collapse_batch(xs, cfg):
+    return [ctc_collapse(x, cfg) for x in xs]
 
 
 # decoding strategies
 
-def decode_argmax(cfg, x):
+def decode_argmax(x, cfg):
     "(B, W, C) probabilities."
 
     x = torch.argmax(x, dim=2).tolist()
     x = utils.decode_texts(x, cfg)
-    return ctc_collapse_batch(cfg, x)
+    return ctc_collapse_batch(x, cfg)
 
 
 # utils
