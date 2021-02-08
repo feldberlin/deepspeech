@@ -44,8 +44,9 @@ def onecycle(optimizer, n_examples, cfg):
 
 
 def load_chkpt(m, run_path):
-    chkpt = wandb.restore('checkpoints.best.test', run_path=run_path)
-    m.load_state_dict(torch.load(chkpt.name))
+    wandb.restore('best.text', run_path=run_path)
+    state_dict = torch.load(os.path.join(wandb.run.dir, 'best.test'))
+    m.load_state_dict(state_dict)
     return m
 
 

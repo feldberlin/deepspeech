@@ -10,35 +10,39 @@ from deepspeech import utils
 # datasets
 
 def yesno(cfg):
-    return SpecAugmented(YesNo(cfg), cfg)
+    return YesNo(cfg)
 
 
 def librispeech(cfg):
     root = cfg.datasets_dir
-    data = ta.datasets.LIBRISPEECH(root=root, download=True)
-    return SpecAugmented(data, cfg)
+    return ta.datasets.LIBRISPEECH(root=root, download=True)
 
 
 def commonvoice(cfg, lang='english'):
     root = cfg.datasets_dir
-    data = ta.datasets.COMMONVOICE(root=root, url=lang, download=True)
-    return SpecAugmented(data, cfg)
+    return ta.datasets.COMMONVOICE(root=root, url=lang, download=True)
 
 
 def splits(cfg, dataset):
-    return td.random_split(dataset, [round(x * len(dataset)) for x in cfg.splits])
+    assert sum(cfg.splits) == 1.0
+    counts = [round(x * len(dataset)) for x in cfg.splits]
+    return [
+        SpecAugmented(s, cfg, masked=i == 0)
+        for i, s
+        in enumerate(td.random_split(dataset, counts))
+    ]
 
 
 # transforms
 
-def spec_augment(cfg, train=True):
+def spec_augment(cfg, masked=True):
     tt = nn.Sequential(
         ta.transforms.MelSpectrogram(**cfg.mel_config()),
         ta.transforms.FrequencyMasking(freq_mask_param=cfg.max_fq_mask),
         ta.transforms.TimeMasking(time_mask_param=cfg.max_time_mask)
     )
 
-    if train:
+    if masked:
         return tt
     else:
         return tt[0]
@@ -66,7 +70,7 @@ def batch(cfg):
         y = utils.encode_texts(y, cfg.graphemes_idx())
         y = pad_sequence(y, batch_first=True, padding_value=cfg.blank_idx())
 
-        return x, y, nx, ny
+        return x, nx, y, ny
 
     return fn
 
@@ -79,9 +83,10 @@ class SpecAugmented(Dataset):
     implemented in torchaudio.
     """
 
-    def __init__(self, data, cfg):
-        self.spec_augment = spec_augment(cfg)
+    def __init__(self, data, cfg, masked):
+        self.spec_augment = spec_augment(cfg, masked)
         self.data = data
+        self.masked = masked
 
     def __len__(self):
         return len(self.data)

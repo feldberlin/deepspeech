@@ -35,8 +35,7 @@ class Trainer:
 
     def checkpoint(self, name):
         base = wandb.run.dir if wandb.run.dir != '/' else '.'
-        filename = os.path.join(base, self.cfg.ckpt_path(name))
-        torch.save(self._model().state_dict(), filename)
+        torch.save(self._model().state_dict(), os.path.join(base, name))
 
     def _model(self):
         is_data_paralell = hasattr(self.model, 'module')
@@ -87,7 +86,7 @@ class Trainer:
                 else enumerate(loader)
             )
 
-            for it, (x, y, nx, ny) in pbar:
+            for it, (x, nx, y, ny) in pbar:
 
                 # placement
                 x = x.to(self.device)
@@ -182,9 +181,6 @@ class HParams(utils.HParams):
     def __init__(self, **kwargs):
         for k, v in kwargs.items():
             setattr(self, k, v)
-
-    def ckpt_path(self, name):
-        return f'checkpoints.{name}'
 
     def n_steps(self, n_examples):
         batch_size = min(n_examples, self.batch_size)

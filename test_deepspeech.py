@@ -30,7 +30,7 @@ def test_deepspeech_fwd():
     # follow the same order as in data loader and trainer
     x = [augment(torch.rand(p.sampling_rate)) for x in range(batch_size)]
     y = np.random.choice(['yes', 'no'], batch_size)
-    x, y, nx, ny = datasets.batch(p)(zip(x, y))
+    x, nx, y, ny = datasets.batch(p)(zip(x, y))
     x, _ = m.forward(x, nx, y, ny)
 
     assert x.shape == (
