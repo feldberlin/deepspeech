@@ -110,6 +110,9 @@ class HParams(utils.HParams):
     # max specaugment time mask width, in number number of frames
     max_time_mask = 30
 
+    # dataset splits
+    splits = [0.8, 0.2]
+
     def __init__(self, **kwargs):
         for k, v in kwargs.items():
             setattr(self, k, v)

@@ -23,7 +23,7 @@ def commonvoice(cfg, lang='english'):
     return ta.datasets.COMMONVOICE(root=root, url=lang, download=True)
 
 
-def splits(cfg, dataset):
+def splits(dataset, cfg):
     assert sum(cfg.splits) == 1.0
     counts = [round(x * len(dataset)) for x in cfg.splits]
     return [

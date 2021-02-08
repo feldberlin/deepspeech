@@ -175,9 +175,6 @@ class HParams(utils.HParams):
     # is this a learning rate finder run
     finder = False
 
-    # dataset splits
-    splits = [0.8, 0.2]
-
     def __init__(self, **kwargs):
         for k, v in kwargs.items():
             setattr(self, k, v)

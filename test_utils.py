@@ -79,8 +79,7 @@ def test_hparams_dict():
 
 
 def test_load_hparams():
-    with open('./fixtures/config.yaml', 'r') as f:
-        p, ptrain = utils.load_hparams(f)
+    p, ptrain = utils.load_hparams('./fixtures/config.yaml')
     assert not p.get('train', None)
     assert ptrain['batch_size'] == 64
 

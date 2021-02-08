@@ -1,5 +1,6 @@
-import os
 import inspect
+import os
+import pathlib
 import yaml
 
 import torch
@@ -122,6 +123,7 @@ def load_hparams(path):
     "Load model, train cfgs from wandb formatted yaml"
     with open(path) as f:
         p = yaml.safe_load(f)
+
     del p['_wandb']
     del p['wandb_version']
     return (

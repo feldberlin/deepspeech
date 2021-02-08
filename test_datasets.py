@@ -38,7 +38,7 @@ def test_splitting():
         ['yes', 'no', 'yes']
     )
 
-    subsets = datasets.splits(p, list(data))
+    subsets = datasets.splits(list(data), p)
     assert len(subsets) == 2
     assert subsets[0].masked == True
     assert subsets[1].masked == False
