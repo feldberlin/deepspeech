@@ -57,7 +57,7 @@ class Trainer:
         wandb.config.update(utils.cfgdict(model_cfg, cfg))
         wandb.config.update({'dataset': repr(self.trainset)})
         wandb.watch(model, log='all')
-        wandb.save('checkpoints.*')
+        wandb.save('checkpoint.*')
 
         # lr schedule
         schedule = utils.onecycle(optimizer, len(self.trainset), cfg)

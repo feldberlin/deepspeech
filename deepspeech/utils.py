@@ -9,10 +9,10 @@ from torch.optim import lr_scheduler
 import wandb
 
 # as saved in wandb
-TEST_CHECKPOINT = 'best.test'
+TEST_CHECKPOINT = 'checkpoint.best.test'
 
 # as saved in wandb
-TRAIN_CHECKPOINT = 'best.train'
+TRAIN_CHECKPOINT = 'checkpoint.best.train'
 
 
 # data
