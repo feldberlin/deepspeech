@@ -1,3 +1,4 @@
+import os
 import inspect
 import yaml
 
@@ -44,8 +45,8 @@ def onecycle(optimizer, n_examples, cfg):
 
 
 def load_chkpt(m, run_path):
-    wandb.restore('best.text', run_path=run_path)
-    state_dict = torch.load(os.path.join(wandb.run.dir, 'best.test'))
+    filename = wandb.restore('best.text', run_path=run_path).name
+    state_dict = torch.load(filename)
     m.load_state_dict(state_dict)
     return m
 
@@ -119,7 +120,8 @@ class HParams():
 
 def load_hparams(path):
     "Load model, train cfgs from wandb formatted yaml"
-    p = yaml.safe_load(path)
+    with open(path) as f:
+        p = yaml.safe_load(f)
     del p['_wandb']
     del p['wandb_version']
     return (
@@ -130,4 +132,5 @@ def load_hparams(path):
 
 def load_wandb_cfg(run_path):
     "Load model and train cfg from wandb"
-    return load_hparams(wandb.restore('config.yaml', run_path=run_path))
+    filename = wandb.restore('config.yaml', run_path=run_path).name
+    return load_hparams(filename)
