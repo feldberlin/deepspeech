@@ -14,7 +14,7 @@ import torch
 import torch.cuda.amp as amp
 from torch.utils.data.dataloader import DataLoader
 
-from deepspeech import utils, datasets, decode
+from deepspeech import utils, datasets, predict
 
 
 class Trainer:
@@ -125,7 +125,7 @@ class Trainer:
                 else:
 
                     # accumulate test metrics
-                    xhat = decode.decode_argmax(model_cfg, logits)
+                    xhat = predict.decode_argmax(model_cfg, logits)
 
                     if y is not None:
                         y = utils.decode_texts(y.cpu(), model_cfg)
