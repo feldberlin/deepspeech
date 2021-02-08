@@ -52,8 +52,12 @@ def onecycle(optimizer, n_examples, cfg):
 
 
 def load_chkpt(m, run_path):
+    device = 'cpu'
+    if torch.cuda.is_available():
+        device = torch.cuda.current_device()
+
     filename = wandb.restore(TEST_CHECKPOINT, run_path=run_path).name
-    state_dict = torch.load(filename)
+    state_dict = torch.load(filename, map_location=torch.device(device))
     m.load_state_dict(state_dict)
     return m
 
