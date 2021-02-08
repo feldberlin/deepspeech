@@ -8,6 +8,12 @@ from torch.nn import functional as F
 from torch.optim import lr_scheduler
 import wandb
 
+# as saved in wandb
+TEST_CHECKPOINT = 'best.test'
+
+# as saved in wandb
+TRAIN_CHECKPOINT = 'best.train'
+
 
 # data
 
@@ -46,7 +52,7 @@ def onecycle(optimizer, n_examples, cfg):
 
 
 def load_chkpt(m, run_path):
-    filename = wandb.restore('best.text', run_path=run_path).name
+    filename = wandb.restore(TEST_CHECKPOINT, run_path=run_path).name
     state_dict = torch.load(filename)
     m.load_state_dict(state_dict)
     return m

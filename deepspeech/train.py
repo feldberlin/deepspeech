@@ -138,7 +138,7 @@ class Trainer:
             train_loss, metrics = run_epoch('train')
             if train_loss < best['train']:
                 best['train'] = train_loss
-                self.checkpoint('best.train')
+                self.checkpoint(utils.TRAIN_CHECKPOINT)
 
             if self.testset is not None:
                 test_loss, metrics = run_epoch('test')
@@ -146,7 +146,7 @@ class Trainer:
                 wandb.log({'test metrics': metrics.to_dict()})
                 if test_loss < best['test']:
                     best['test'] = test_loss
-                    self.checkpoint('best.test')
+                    self.checkpoint(utils.TEST_CHECKPOINT)
 
 
 class HParams(utils.HParams):
