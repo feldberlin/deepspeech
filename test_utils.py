@@ -78,6 +78,11 @@ def test_hparams_dict():
     assert dict(p) == {'a': 'b', 'foo': 'DELETED', 'baz': 'qux'}
 
 
+def test_hparams():
+    p = model.HParams()
+    assert not dict(p).get('graphemes_idx', None)
+
+
 def test_load_hparams():
     p, ptrain = utils.load_hparams('./fixtures/config.yaml')
     assert not p.get('train', None)

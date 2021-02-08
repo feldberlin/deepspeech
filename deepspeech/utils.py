@@ -119,7 +119,7 @@ class HParams():
         def f(obj):
             return {k: v for k, v
                     in vars(obj).items()
-                    if not k.startswith('__')
+                    if not k.startswith('__') and not k.endswith('_idx')
                     and not inspect.isfunction(v)}
 
         return iter({**f(self.__class__), **f(self)}.items())
@@ -132,7 +132,6 @@ def load_hparams(path):
 
     del p['_wandb']
     del p['wandb_version']
-    del p['graphemes_idx']
     return (
         { k: v['value'] for k, v in p.items() if k != 'train' },
         p.pop('train')['value']
