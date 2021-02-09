@@ -82,13 +82,13 @@ class Metrics():
                                   in zip(x, y)])
 
         # counts
-        self.n_words += sum([l.count(' ') + 1 for l in x])
-        self.n_chars += sum([len(l) for l in x])
+        self.n_words += sum([l.count(' ') + 1 for l in y])
+        self.n_chars += sum([len(l) for l in y])
 
     def to_dict(self):
         return {
-            'wer': self.n_word_edits / self.n_words,
-            'cer': self.n_char_edits / self.n_chars,
+            'wer': round(self.n_word_edits / self.n_words, 4),
+            'cer': round(self.n_char_edits / self.n_chars, 4)
         }
 
 

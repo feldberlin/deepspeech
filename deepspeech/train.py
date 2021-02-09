@@ -70,7 +70,7 @@ class Trainer:
             is_train = split == 'train'
             model.train(is_train)
             data = self.trainset if is_train else self.testset
-            metrics = utils.Metrics()
+            metrics = utils.Metrics()  # per epoch metrics
             loader = DataLoader(
                 data,
                 shuffle=is_train,

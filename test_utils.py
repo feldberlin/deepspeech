@@ -38,8 +38,8 @@ def test_metrics():
     m.accumulate(x, y)
 
     assert m.to_dict() == {
-        'wer': (3 + 1) / (6 + 4),
-        'cer': (5 + 3) / (30 + 20),
+        'wer': round((3 + 1) / (6 + 4), 4),
+        'cer': round((5 + 3) / (30 + 18), 4)
     }
 
 
@@ -52,8 +52,8 @@ def test_metrics_accumulation():
     m.accumulate(x[1:], y[1:])
 
     assert m.to_dict() == {
-        'wer': (3 + 1) / (6 + 4),
-        'cer': (5 + 3) / (30 + 20),
+        'wer': round((3 + 1) / (6 + 4), 4),
+        'cer': round((5 + 3) / (30 + 18), 4)
     }
 
 
