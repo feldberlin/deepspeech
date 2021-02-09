@@ -23,12 +23,17 @@ def commonvoice(cfg, lang='english'):
     return ta.datasets.COMMONVOICE(root=root, url=lang, download=True)
 
 
-def splits(dataset, cfg):
+def splits(dataset, cfg, unmasked_trainset=False):
+    """Split according to cfg.splits. Wraps each split in SpecAugment. The
+    first split is the trainset and applies SpecAugment masking. Uses cfg.seed
+    for reproducible splits.
+    """
+
     assert sum(cfg.splits) == 1.0
     gen = torch.Generator().manual_seed(cfg.seed)
     counts = [round(x * len(dataset)) for x in cfg.splits]
     return [
-        SpecAugmented(s, cfg, masked=i == 0)
+        SpecAugmented(s, cfg, masked=not unmasked_trainset and i == 0)
         for i, s
         in enumerate(td.random_split(dataset, counts, generator=gen))
     ]

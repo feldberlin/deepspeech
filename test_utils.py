@@ -63,6 +63,12 @@ def test_levenshtein():
     assert utils.levenshtein(a.split(), b.split()) == 3
 
 
+def test_levenshtein_chars():
+    assert utils.levenshtein(list('abcd'), list('dcba')) == 4
+    assert utils.levenshtein(list(''), list('abcd')) == 4
+    assert utils.levenshtein(list('almost'), list('alomst')) == 2
+
+
 # config
 
 def test_hparams_dict():

@@ -19,5 +19,5 @@ def ctc(m, x, yhat):
         preds = torch.exp(yhat[i]).cpu().numpy()
         sound = x[i].log2().cpu().numpy().T
         axs[i*2].matshow(preds, cmap=plt.cm.Blues)
-        axs[i*2-1].imshow(sound, aspect='auto')
+        axs[i*2+1].imshow(sound, aspect='auto')
 
