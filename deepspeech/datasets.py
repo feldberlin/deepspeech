@@ -10,7 +10,7 @@ from deepspeech import utils
 
 
 # alphabet for the yesno dataset
-YESNO_GRAPHEMES = np.array('e', 'k', 'l', 'n', 'o', 'r', ' ', 'ε'])
+YESNO_GRAPHEMES = np.array(['e', 'k', 'l', 'n', 'o', 'r', ' ', 'ε'])
 
 
 # datasets

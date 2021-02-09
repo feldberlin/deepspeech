@@ -30,12 +30,13 @@ def test_hparams_graphemes_idx():
     p = model.HParams(graphemes=datasets.YESNO_GRAPHEMES)
     assert p.graphemes_idx() == {
         'e': 0,
-        'n': 1,
-        'o': 2,
-        's': 3,
-        'y': 4,
-        ' ': 5,
-        'ε': 6,
+        'k': 1,
+        'l': 2,
+        'n': 3,
+        'o': 4,
+        'r': 5,
+        ' ': 6,
+        'ε': 7,
     }
 
 
