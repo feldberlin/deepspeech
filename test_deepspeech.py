@@ -21,6 +21,11 @@ def test_hparams_override():
     assert p.use_mixed_precision is False
 
 
+def test_hparams_blank():
+    p = model.HParams()
+    assert p.graphemes[p.blank_idx()] == 'ε'
+
+
 def test_deepspeech_fwd():
     batch_size = 5
     p = model.HParams()

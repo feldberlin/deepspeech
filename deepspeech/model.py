@@ -70,7 +70,8 @@ class DeepSpeech(nn.Module):
             loss = None
             if y is not None and ny is not None:
                 nx = self.cfg.frame_lengths(nx)
-                loss = F.ctc_loss(x.permute(1, 0, 2), y, nx, ny)  # W, B, C
+                xctc = x.permute(1, 0, 2)  # W, B, C
+                loss = F.ctc_loss(xctc, y, nx, ny, blank=self.cfg.blank_idx())
 
             return x, loss
 
@@ -128,7 +129,7 @@ class HParams(utils.HParams):
         return {x:i for i,x in enumerate(self.graphemes)}
 
     def blank_idx(self):
-        return len(self.graphemes) #  the last char in graphemes
+        return len(self.graphemes) - 1 #  the last char in graphemes
 
     def n_graphemes(self):
         return len(self.graphemes)

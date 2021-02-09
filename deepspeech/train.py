@@ -162,7 +162,7 @@ class HParams(utils.HParams):
     batch_size = 128
 
     # the learning rate
-    learning_rate = 3e-4
+    learning_rate = 22e-4
 
     # adam betas
     betas = (0.9, 0.95)
