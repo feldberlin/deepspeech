@@ -125,7 +125,7 @@ class Trainer:
                 else:
 
                     # accumulate test metrics
-                    xhat = predict.decode_argmax(model_cfg, logits)
+                    xhat = predict.decode_argmax(logits, model_cfg)
 
                     if y is not None:
                         y = utils.decode_texts(y.cpu(), model_cfg)
