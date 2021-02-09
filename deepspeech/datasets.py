@@ -1,11 +1,17 @@
+import numpy as np
 import torch
-import torchaudio as ta
-import torch.nn as nn
-import torch.utils.data.dataset as td
 from torch.nn.utils.rnn import pad_sequence
 from torch.utils.data import Dataset
+import torch.nn as nn
+import torch.utils.data.dataset as td
+import torchaudio as ta
 
 from deepspeech import utils
+
+
+# alphabet for the yesno dataset
+YESNO_GRAPHEMES = np.array(['e', 'n', 'o', 's', 'y', ' ', 'ε'])
+
 
 # datasets
 
@@ -108,8 +114,9 @@ class SpecAugmented(Dataset):
 
 class YesNo(Dataset):
     """YesNo is a 60 example test dataset. Targets have been converted to
-    backwards hebrew text, rather than the original ordinals.
+    english to avoid mysterious issues with right to left text.
     """
+
 
     def __init__(self, cfg):
         self.data = ta.datasets.YESNO(root=cfg.datasets_dir, download=True)
@@ -122,7 +129,7 @@ class YesNo(Dataset):
         return torch.squeeze(x, 0), self.decode(y)
 
     def decode(self, y):
-        return ' '.join(['כן' if el == 1 else 'לא' for el in y])[::-1]
+        return ' '.join(['yes' if el == 1 else 'no' for el in y])
 
     def __repr__(self):
         return f'YesNo()'

@@ -26,6 +26,19 @@ def test_hparams_blank():
     assert p.graphemes[p.blank_idx()] == 'ε'
 
 
+def test_hparams_graphemes_idx():
+    p = model.HParams(graphemes=datasets.YESNO_GRAPHEMES)
+    assert p.graphemes_idx() == {
+        'e': 0,
+        'n': 1,
+        'o': 2,
+        's': 3,
+        'y': 4,
+        ' ': 5,
+        'ε': 6,
+    }
+
+
 def test_deepspeech_fwd():
     batch_size = 5
     p = model.HParams()
@@ -77,7 +90,7 @@ def test_deepspeech_train():
     os.environ['WANDB_MODE'] = 'dryrun'
 
     # hyperparams
-    p = model.HParams(graphemes=np.array(['א', 'כ', 'ל', 'ן', ' ', 'ε']))
+    p = model.HParams(graphemes=datsets.YESNO_GRAPHEMES)
     tp = train.HParams(max_epochs=1, batch_size=8)
 
     # build
