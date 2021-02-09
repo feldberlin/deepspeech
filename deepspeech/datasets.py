@@ -10,7 +10,7 @@ from deepspeech import utils
 
 
 # alphabet for the yesno dataset
-YESNO_GRAPHEMES = np.array(['e', 'n', 'o', 's', 'y', ' ', 'ε'])
+YESNO_GRAPHEMES = np.array('e', 'k', 'l', 'n', 'o', 'r', ' ', 'ε'])
 
 
 # datasets
@@ -129,7 +129,7 @@ class YesNo(Dataset):
         return torch.squeeze(x, 0), self.decode(y)
 
     def decode(self, y):
-        return ' '.join(['yes' if el == 1 else 'no' for el in y])
+        return ' '.join(['ken' if el == 1 else 'lor' for el in y])
 
     def __repr__(self):
         return f'YesNo()'
