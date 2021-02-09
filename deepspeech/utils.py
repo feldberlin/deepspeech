@@ -148,4 +148,4 @@ def restore(filename, run_path):
 
 def load_wandb_cfg(run_path):
     "Load model and train cfg from wandb"
-    return load_hparams(restore(filename, run_path))
+    return load_hparams(restore('config.yaml', run_path))
