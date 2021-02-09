@@ -56,7 +56,7 @@ def load_chkpt(m, run_path):
     if torch.cuda.is_available():
         device = torch.cuda.current_device()
 
-    filename = wandb.restore(TEST_CHECKPOINT, run_path=run_path).name
+    filename = restore(TEST_CHECKPOINT, run_path)
     state_dict = torch.load(filename, map_location=torch.device(device))
     m.load_state_dict(state_dict)
     return m
@@ -142,7 +142,10 @@ def load_hparams(path):
     )
 
 
+def restore(filename, run_path):
+    return wandb.restore(filename, run_path=run_path, replace=True).name
+
+
 def load_wandb_cfg(run_path):
     "Load model and train cfg from wandb"
-    filename = wandb.restore('config.yaml', run_path=run_path).name
-    return load_hparams(filename)
+    return load_hparams(restore(filename, run_path))
