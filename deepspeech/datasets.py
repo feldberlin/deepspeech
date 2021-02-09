@@ -25,11 +25,12 @@ def commonvoice(cfg, lang='english'):
 
 def splits(dataset, cfg):
     assert sum(cfg.splits) == 1.0
+    gen = torch.Generator().manual_seed(cfg.seed)
     counts = [round(x * len(dataset)) for x in cfg.splits]
     return [
         SpecAugmented(s, cfg, masked=i == 0)
         for i, s
-        in enumerate(td.random_split(dataset, counts))
+        in enumerate(td.random_split(dataset, counts, generator=gen))
     ]
 
 

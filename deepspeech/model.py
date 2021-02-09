@@ -113,6 +113,9 @@ class HParams(utils.HParams):
     # dataset splits
     splits = [0.8, 0.2]
 
+    # random seed
+    seed = 2687
+
     def __init__(self, **kwargs):
         for k, v in kwargs.items():
             setattr(self, k, v)
