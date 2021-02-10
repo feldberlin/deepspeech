@@ -71,7 +71,7 @@ class DeepSpeech(nn.Module):
             if y is not None and ny is not None:
                 nx = self.cfg.frame_lengths(nx)
                 xctc = x.permute(1, 0, 2)  # W, B, C
-                loss = F.ctc_loss(xctc, y, nx, ny, blank=self.cfg.blank_idx())
+                loss = F.ctc_loss(xctc, y, nx, ny)
 
             return x, loss
 
@@ -99,8 +99,8 @@ class HParams(utils.HParams):
     # first layer stride. value of 2 will half the frequency
     stride = 2
 
-    # graphemes. last char is blank
-    graphemes = np.array([c for c in 'abcdefghijklmnopqrstuvwxyz -ε'])
+    # graphemes. first char is blank
+    graphemes = np.array([c for c in 'εabcdefghijklmnopqrstuvwxyz -'])
 
     # root directory to persist datsets in
     datasets_dir = '/tmp'
@@ -127,9 +127,6 @@ class HParams(utils.HParams):
     @lru_cache()
     def graphemes_idx(self):
         return {x:i for i,x in enumerate(self.graphemes)}
-
-    def blank_idx(self):
-        return len(self.graphemes) - 1 #  the last char in graphemes
 
     def n_graphemes(self):
         return len(self.graphemes)

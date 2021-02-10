@@ -23,20 +23,20 @@ def test_hparams_override():
 
 def test_hparams_blank():
     p = model.HParams()
-    assert p.graphemes[p.blank_idx()] == 'ε'
+    assert p.graphemes[0] == 'ε'
 
 
 def test_hparams_graphemes_idx():
     p = model.HParams(graphemes=datasets.YESNO_GRAPHEMES)
     assert p.graphemes_idx() == {
-        'e': 0,
-        'k': 1,
-        'l': 2,
-        'n': 3,
-        'o': 4,
-        'r': 5,
-        ' ': 6,
-        'ε': 7,
+        'ε': 0,
+        'e': 1,
+        'k': 2,
+        'l': 3,
+        'n': 4,
+        'o': 5,
+        'r': 6,
+        ' ': 7,
     }
 
 
@@ -96,8 +96,7 @@ def test_deepspeech_train():
 
     # build
     m = model.DeepSpeech(p)
-    ds = datasets.yesno(p)
-    trainset, testset = datasets.splits(ds, p)
+    trainset, testset = datasets.splits(datasets.yesno(p), p)
 
     # train
     t = train.Trainer(m, trainset, testset, tp)

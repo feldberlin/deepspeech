@@ -7,23 +7,23 @@ from deepspeech import utils, model, train
 
 def test_encode_text():
     got = utils.encode_text('definitely mayb', model.HParams().graphemes_idx())
-    want = [3, 4, 5, 8, 13, 8, 19, 4, 11, 24, 26, 12, 0, 24, 1]
+    want = [4, 5, 6, 9, 14, 9, 20, 5, 12, 25, 27, 13, 1, 25, 2]
     assert got.tolist() == want
 
 
 def test_encode_texts():
     got = utils.encode_texts(['aa', 'bb'], model.HParams().graphemes_idx())
-    want = [torch.tensor([0, 0]), torch.tensor([1, 1])]
+    want = [torch.tensor([1, 1]), torch.tensor([2, 2])]
     assert torch.stack(got).equal(torch.stack(want))
 
 
 def test_decode_text():
-    encoded = [3, 4, 5, 8, 13, 8, 19, 4, 11, 24, 26, 12, 0, 24, 1]
+    encoded = [4, 5, 6, 9, 14, 9, 20, 5, 12, 25, 27, 13, 1, 25, 2]
     assert utils.decode_text(encoded, model.HParams()) == 'definitely mayb'
 
 
 def test_decode_texts():
-    got = utils.decode_texts([[0, 1], [1, 0]], model.HParams())
+    got = utils.decode_texts([[1, 2], [2, 1]], model.HParams())
     assert got == ['ab', 'ba']
 
 

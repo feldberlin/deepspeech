@@ -10,7 +10,7 @@ from deepspeech import utils
 
 
 # alphabet for the yesno dataset
-YESNO_GRAPHEMES = np.array(['e', 'k', 'l', 'n', 'o', 'r', ' ', 'ε'])
+YESNO_GRAPHEMES = np.array(['ε', 'e', 'k', 'l', 'n', 'o', 'r', ' '])
 
 
 # datasets
@@ -80,7 +80,7 @@ def batch(cfg):
 
         # ys
         y = utils.encode_texts(y, cfg.graphemes_idx())
-        y = pad_sequence(y, batch_first=True, padding_value=cfg.blank_idx())
+        y = pad_sequence(y, batch_first=True, padding_value=0)
 
         return x, nx, y, ny
 

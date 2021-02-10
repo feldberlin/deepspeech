@@ -14,7 +14,7 @@ def test_batch_collation():
 
     assert x.shape == (3, p.n_mels, p.sampling_rate)
     assert y.shape == (3, 3)
-    assert y[1,-1] == p.blank_idx()
+    assert y[1,-1] == 0
     assert nx.equal(torch.tensor([p.sampling_rate] * 3))
     assert ny.equal(torch.tensor([3, 2, 3]))
 
