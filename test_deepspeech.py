@@ -91,7 +91,7 @@ def test_deepspeech_train():
     os.environ['WANDB_MODE'] = 'dryrun'
 
     # hyperparams
-    p = model.HParams(graphemes=datsets.YESNO_GRAPHEMES)
+    p = model.HParams(graphemes=datasets.YESNO_GRAPHEMES)
     tp = train.HParams(max_epochs=1, batch_size=8)
 
     # build
