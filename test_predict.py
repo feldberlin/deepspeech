@@ -5,14 +5,14 @@ from deepspeech import model, predict, datasets
 
 
 def test_ctc_collapse_batch():
-    p = model.HParams(graphemes=np.array(['a', 'b', 'ε']))
+    p = model.HParams(graphemes=np.array(['ε', 'a', 'b']))
     assert predict.ctc_collapse_batch(['aababb'], p) == ['abab']
     assert predict.ctc_collapse_batch(['aababεbε'], p) == ['ababb']
 
 
 def test_greedy():
-    p = model.HParams(graphemes=np.array(['a', 'b', 'ε']))
-    xs = torch.tensor([[0.6, 0.4], [0.6, 0.4], [0.4, 0.6]])
+    p = model.HParams(graphemes=np.array(['ε', 'a', 'b']))
+    xs = torch.tensor([[0.5, 0.4, 0.1], [0.4, 0.5, 0.1], [0.3, 0.2, 0.6]])
     xs = xs.unsqueeze(0)  # B, W, C
     got = predict.decode_argmax(xs, p)
     assert got == ['ab']

@@ -27,7 +27,7 @@ def predict(m, x, nx, y=None, yn=None):
 
 def ctc_collapse(x, cfg):
     x = ''.join(c for c, _ in itertools.groupby(x))
-    return x.replace(cfg.graphemes[-1], '')
+    return x.replace(cfg.graphemes[0], '')
 
 
 def ctc_collapse_batch(xs, cfg):
