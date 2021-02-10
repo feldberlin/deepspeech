@@ -125,11 +125,11 @@ class Trainer:
                 else:
 
                     # accumulate test metrics
-                    xhat = predict.decode_argmax(logits, model_cfg)
+                    yhat = predict.decode_argmax(logits, model_cfg)
 
                     if y is not None:
                         y = utils.decode_texts(y.cpu(), model_cfg)
-                        metrics.accumulate(xhat, y)
+                        metrics.accumulate(yhat, y)
 
             return float(np.mean(losses)), metrics
 

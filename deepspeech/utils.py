@@ -70,16 +70,16 @@ class Metrics():
         self.n_word_edits, self.n_words = 0, 0
         self.n_char_edits, self.n_chars = 0, 0
 
-    def accumulate(self, x, y):
+    def accumulate(self, yhat, y):
         # total word edits in batch
         self.n_word_edits += sum([levenshtein(a.split(), b.split())
                                   for a, b
-                                  in zip(x, y)])
+                                  in zip(yhat, y)])
 
         # total char edits in batch
         self.n_char_edits += sum([levenshtein(list(a), list(b))
                                   for a, b
-                                  in zip(x, y)])
+                                  in zip(yhat, y)])
 
         # counts
         self.n_words += sum([l.count(' ') + 1 for l in y])
