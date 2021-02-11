@@ -118,7 +118,7 @@ class HParams(utils.HParams):
     seed = 2687
 
     # added before log scaling to prevent numerical issues
-    log_epsilon = 1e-6
+    log_epsilon = 1e-7
 
     def __init__(self, **kwargs):
         for k, v in kwargs.items():

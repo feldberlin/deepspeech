@@ -60,7 +60,7 @@ class Rescaling(nn.Module):
         self.epsilon = log_epsilon
 
     def forward(self, x):
-        return torch.log(x + self.epsilon)
+        return torch.log2(x + self.epsilon)
 
 
 # datasets
