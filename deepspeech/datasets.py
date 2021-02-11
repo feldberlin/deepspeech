@@ -9,21 +9,6 @@ import torchaudio as ta
 from deepspeech import utils
 
 
-# transforms
-
-def spec_augment(cfg, masked=True):
-    tt = nn.Sequential(
-        ta.transforms.MelSpectrogram(**cfg.mel_config()),
-        ta.transforms.FrequencyMasking(freq_mask_param=cfg.max_fq_mask),
-        ta.transforms.TimeMasking(time_mask_param=cfg.max_time_mask)
-    )
-
-    if masked:
-        return tt
-    else:
-        return tt[0]
-
-
 # batching
 
 def batch(cfg):
@@ -51,6 +36,33 @@ def batch(cfg):
     return fn
 
 
+# transforms
+
+def spec_augment(cfg, masked=True):
+    tt = nn.Sequential(
+        ta.transforms.MelSpectrogram(**cfg.mel_config()),
+        Rescaling(log_epsilon=cfg.log_epsilon),
+        ta.transforms.FrequencyMasking(freq_mask_param=cfg.max_fq_mask),
+        ta.transforms.TimeMasking(time_mask_param=cfg.max_time_mask)
+    )
+
+    if masked:
+        return tt
+    else:
+        return tt[0]
+
+
+class Rescaling(nn.Module):
+    "Log scale to increase the contrast"
+
+    def __init__(self, log_epsilon):
+        super().__init__()
+        self.epsilon = log_epsilon
+
+    def forward(self, x):
+        return torch.log(x + self.epsilon)
+
+
 # datasets
 
 def splits(dataset, cfg, unmasked_trainset=False):
@@ -76,6 +88,7 @@ class SpecAugmented(Dataset):
     """
 
     def __init__(self, data, cfg, masked):
+        super().__init__()
         self.spec_augment = spec_augment(cfg, masked)
         self.data = data
         self.masked = masked
@@ -103,6 +116,7 @@ class YesNo(Dataset):
 
 
     def __init__(self, cfg):
+        super().__init__()
         root=cfg.datasets_dir
         self.data = ta.datasets.YESNO(root=root, download=True)
         self.sr = cfg.sampling_rate
@@ -127,6 +141,7 @@ class LibriSpeech(Dataset):
     """
 
     def __init__(self, cfg):
+        super().__init__()
         root=cfg.datasets_dir
         self.data = ta.datasets.LIBRISPEECH(root=root, download=True)
         self.sr = cfg.sampling_rate
@@ -141,5 +156,3 @@ class LibriSpeech(Dataset):
 
     def __repr__(self):
         return f'LibriSpeech()'
-
-
