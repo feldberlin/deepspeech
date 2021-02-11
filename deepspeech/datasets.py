@@ -9,42 +9,6 @@ import torchaudio as ta
 from deepspeech import utils
 
 
-# alphabet for the yesno dataset
-YESNO_GRAPHEMES = np.array(['ε', 'e', 'k', 'l', 'n', 'o', 'r', ' '])
-
-
-# datasets
-
-def yesno(cfg):
-    return YesNo(cfg)
-
-
-def librispeech(cfg):
-    root = cfg.datasets_dir
-    return ta.datasets.LIBRISPEECH(root=root, download=True)
-
-
-def commonvoice(cfg, lang='english'):
-    root = cfg.datasets_dir
-    return ta.datasets.COMMONVOICE(root=root, url=lang, download=True)
-
-
-def splits(dataset, cfg, unmasked_trainset=False):
-    """Split according to cfg.splits. Wraps each split in SpecAugment. The
-    first split is the trainset and applies SpecAugment masking. Uses cfg.seed
-    for reproducible splits.
-    """
-
-    assert sum(cfg.splits) == 1.0
-    gen = torch.Generator().manual_seed(cfg.seed)
-    counts = [round(x * len(dataset)) for x in cfg.splits]
-    return [
-        SpecAugmented(s, cfg, masked=not unmasked_trainset and i == 0)
-        for i, s
-        in enumerate(td.random_split(dataset, counts, generator=gen))
-    ]
-
-
 # transforms
 
 def spec_augment(cfg, masked=True):
@@ -89,6 +53,22 @@ def batch(cfg):
 
 # datasets
 
+def splits(dataset, cfg, unmasked_trainset=False):
+    """Split according to cfg.splits. Wraps each split in SpecAugment. The
+    first split is the trainset and applies SpecAugment masking. Uses cfg.seed
+    for reproducible splits.
+    """
+
+    assert sum(cfg.splits) == 1.0
+    gen = torch.Generator().manual_seed(cfg.seed)
+    counts = [round(x * len(dataset)) for x in cfg.splits]
+    return [
+        SpecAugmented(s, cfg, masked=not unmasked_trainset and i == 0)
+        for i, s
+        in enumerate(td.random_split(dataset, counts, generator=gen))
+    ]
+
+
 class SpecAugmented(Dataset):
     """SpecAugmentation as per https://arxiv.org/abs/1904.08779. Warping has
     not been implemented because it has a negligible impact and is not
@@ -112,6 +92,10 @@ class SpecAugmented(Dataset):
         return f'SpecAugmented()'
 
 
+# alphabet for the yesno dataset
+YESNO_GRAPHEMES = np.array([c for c in 'εeklnor '])
+
+
 class YesNo(Dataset):
     """YesNo is a 60 example test dataset. Targets have been converted to
     english to avoid mysterious issues with right to left text.
@@ -119,13 +103,16 @@ class YesNo(Dataset):
 
 
     def __init__(self, cfg):
-        self.data = ta.datasets.YESNO(root=cfg.datasets_dir, download=True)
+        root=cfg.datasets_dir
+        self.data = ta.datasets.YESNO(root=root, download=True)
+        self.sr = cfg.sampling_rate
 
     def __len__(self):
         return len(self.data)
 
     def __getitem__(self, idx):
-        x, _, y = self.data[idx]
+        x, sr, y = self.data[idx]
+        assert sr == self.sr, sr
         return torch.squeeze(x, 0), self.decode(y)
 
     def decode(self, y):
@@ -133,3 +120,26 @@ class YesNo(Dataset):
 
     def __repr__(self):
         return f'YesNo()'
+
+
+class LibriSpeech(Dataset):
+    """Librispeech english
+    """
+
+    def __init__(self, cfg):
+        root=cfg.datasets_dir
+        self.data = ta.datasets.LIBRISPEECH(root=root, download=True)
+        self.sr = cfg.sampling_rate
+
+    def __len__(self):
+        return len(self.data)
+
+    def __getitem__(self, idx):
+        x, sr, y, speaker_id, chapter_id, utterance_id = self.data[idx]
+        assert sr == self.sr, sr
+        return torch.squeeze(x, 0), y.lower()
+
+    def __repr__(self):
+        return f'LibriSpeech()'
+
+

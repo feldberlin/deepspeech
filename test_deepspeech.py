@@ -96,7 +96,7 @@ def test_deepspeech_train():
 
     # build
     m = model.DeepSpeech(p)
-    trainset, testset = datasets.splits(datasets.yesno(p), p)
+    trainset, testset = datasets.splits(datasets.YesNo(p), p)
 
     # train
     t = train.Trainer(m, trainset, testset, tp)

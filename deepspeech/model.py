@@ -146,4 +146,5 @@ class HParams(utils.HParams):
             'sample_rate': self.sampling_rate,
             'n_fft': self.n_fft(),
             'n_mels': self.n_mels,
+            'normalized': True,
         }
