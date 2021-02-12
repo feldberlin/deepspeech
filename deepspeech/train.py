@@ -163,10 +163,10 @@ class HParams(utils.HParams):
     betas = (0.9, 0.95)
 
     # training loop clips gradients
-    grad_norm_clip = None
+    grad_norm_clip = 1.0
 
     # how many data loader threads to use
-    num_workers = 0
+    num_workers = 15
 
     # is this a learning rate finder run
     finder = False
