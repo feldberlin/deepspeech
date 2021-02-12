@@ -16,8 +16,7 @@ def ctc(m, x, yhat):
     batch_size = yhat.shape[0]
     fig, axs = plt.subplots(1, batch_size * 2, figsize=(20, 30))
     for i in range(batch_size):
-        preds = torch.exp(yhat[i]).cpu().numpy()
-        sound = x[i].log2().cpu().numpy().T
+        preds = yhat[i].cpu().numpy()
+        sound = x[i].cpu().numpy().T
         axs[i*2].matshow(preds, cmap=plt.cm.Blues)
         axs[i*2+1].imshow(sound, aspect='auto')
-

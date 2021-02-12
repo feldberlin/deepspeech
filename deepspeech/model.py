@@ -88,7 +88,7 @@ class HParams(utils.HParams):
     n_fft_ms = 20
 
     # number of mel filter banks
-    n_mels = 40
+    n_mels = 64
 
     # convolution kernel width
     kernel_width = 9

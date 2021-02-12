@@ -3,7 +3,7 @@ import itertools
 import torch
 import torch.cuda.amp as amp
 
-from deepspeech import model, train, utils
+from deepspeech import model, train, utils, datasets
 
 
 def predict(m, x, nx, y=None, yn=None):
@@ -21,6 +21,11 @@ def predict(m, x, nx, y=None, yn=None):
         nx = nx.to(device)
         with torch.set_grad_enabled(False):
             return m.forward(x, nx, y, yn)
+
+
+def predict_batch(m, batch, cfg):
+    x, xn, y, yn = datasets.batch(cfg)(batch)
+    return predict(m, x, xn, y, yn)
 
 
 # ctc utilities

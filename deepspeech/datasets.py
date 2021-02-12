@@ -41,7 +41,7 @@ def batch(cfg):
 def spec_augment(cfg, masked=True):
     tt = nn.Sequential(
         ta.transforms.MelSpectrogram(**cfg.mel_config()),
-        Rescaling(log_epsilon=cfg.log_epsilon),
+        Rescaled(),
         ta.transforms.FrequencyMasking(freq_mask_param=cfg.max_fq_mask),
         ta.transforms.TimeMasking(time_mask_param=cfg.max_time_mask)
     )
@@ -49,18 +49,18 @@ def spec_augment(cfg, masked=True):
     if masked:
         return tt
     else:
-        return tt[0]
+        return tt[:-2]
 
 
-class Rescaling(nn.Module):
-    "Log scale to increase the contrast"
+class Rescaled(nn.Module):
+    "Log10 on the melspectogram, followed by scaling to roughly -1 to 1"
 
-    def __init__(self, log_epsilon):
+    def __init__(self):
         super().__init__()
-        self.epsilon = log_epsilon
+        self.amp_to_db = ta.transforms.AmplitudeToDB()
 
     def forward(self, x):
-        return torch.log2(x + self.epsilon)
+        return self.amp_to_db(x) / 100.0  # DB scale is around -100 to 100
 
 
 # datasets
@@ -118,14 +118,14 @@ class YesNo(Dataset):
     def __init__(self, cfg):
         super().__init__()
         root=cfg.datasets_dir
-        self.data = ta.datasets.YESNO(root=root, download=True)
+        self.dataset = ta.datasets.YESNO(root=root, download=True)
         self.sr = cfg.sampling_rate
 
     def __len__(self):
-        return len(self.data)
+        return len(self.dataset)
 
     def __getitem__(self, idx):
-        x, sr, y = self.data[idx]
+        x, sr, y = self.dataset[idx]
         assert sr == self.sr, sr
         return torch.squeeze(x, 0), self.decode(y)
 
@@ -143,14 +143,14 @@ class LibriSpeech(Dataset):
     def __init__(self, cfg):
         super().__init__()
         root=cfg.datasets_dir
-        self.data = ta.datasets.LIBRISPEECH(root=root, download=True)
+        self.dataset = ta.datasets.LIBRISPEECH(root=root, download=True)
         self.sr = cfg.sampling_rate
 
     def __len__(self):
-        return len(self.data)
+        return len(self.dataset)
 
     def __getitem__(self, idx):
-        x, sr, y, speaker_id, chapter_id, utterance_id = self.data[idx]
+        x, sr, y, speaker_id, chapter_id, utterance_id = self.dataset[idx]
         assert sr == self.sr, sr
         return torch.squeeze(x, 0), y.lower()
 
