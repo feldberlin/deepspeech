@@ -43,12 +43,12 @@ class DeepSpeech(nn.Module):
             utils.load_chkpt(self, run_path)
 
     def forward(self, x, nx, y=None, ny=None):
-        "(N, H, W) batches of melspecs, (N, W) batches of graphemes."
+        "(B, H, W) batches of melspecs, (B, W) batches of graphemes."
 
         with amp.autocast(enabled=self.cfg.mixed_precision):
             B, H, W = x.shape
 
-            # first convolution, removes H
+            # first convolution, collapses H
             x = F.pad(x, (self.cfg.padding(), self.cfg.padding(), 0, 0))
             x = F.relu(self.conv(x.unsqueeze(1)))  # add empty channel dim
             x = torch.squeeze(x, 2).permute(0, 2, 1)  # B, W, C
@@ -88,7 +88,7 @@ class HParams(utils.HParams):
     n_fft_ms = 20
 
     # number of mel filter banks
-    n_mels = 64
+    n_mels = 40
 
     # convolution kernel width
     kernel_width = 9
@@ -116,9 +116,6 @@ class HParams(utils.HParams):
 
     # random seed
     seed = 2687
-
-    # added before log scaling to prevent numerical issues
-    log_epsilon = 1e-7
 
     def __init__(self, **kwargs):
         for k, v in kwargs.items():

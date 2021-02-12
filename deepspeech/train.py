@@ -92,17 +92,14 @@ class Trainer:
                 # placement
                 x = x.to(self.device)
                 nx = nx.to(self.device)
-
-                if y is not None and ny is not None:
-                    y = y.to(self.device)
-                    ny = ny.to(self.device)
+                y = y.to(self.device)
+                ny = ny.to(self.device)
 
                 with torch.set_grad_enabled(is_train):
                     with amp.autocast(enabled=model_cfg.mixed_precision):
                         logits, loss = model(x, nx, y, ny)
-
-                    loss = loss.mean()  # collect gpus
-                    losses.append(loss.item())
+                        loss = loss.mean()  # collect gpus
+                        losses.append(loss.item())
 
                 if is_train:
                     model.zero_grad()
@@ -126,10 +123,8 @@ class Trainer:
 
                     # accumulate test metrics
                     yhat = predict.decode_argmax(logits, model_cfg)
-
-                    if y is not None:
-                        y = utils.decode_texts(y.cpu(), model_cfg)
-                        metrics.accumulate(yhat, y)
+                    y = utils.decode_texts(y.cpu(), model_cfg)
+                    metrics.accumulate(yhat, y)
 
             return float(np.mean(losses)), metrics
 

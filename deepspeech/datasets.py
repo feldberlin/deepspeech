@@ -87,18 +87,18 @@ class SpecAugmented(Dataset):
     implemented in torchaudio.
     """
 
-    def __init__(self, data, cfg, masked):
+    def __init__(self, dataset, cfg, masked):
         super().__init__()
         self.spec_augment = spec_augment(cfg, masked)
-        self.data = data
+        self.dataset = dataset
         self.masked = masked
 
     def __len__(self):
-        return len(self.data)
+        return len(self.dataset)
 
     def __getitem__(self, idx):
-        x = self.data[idx][0]
-        y = self.data[idx][1]
+        x = self.dataset[idx][0]
+        y = self.dataset[idx][1]
         return self.spec_augment(x), y
 
     def __repr__(self):
