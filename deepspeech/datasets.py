@@ -152,7 +152,7 @@ class LibriSpeech(Dataset):
     def __getitem__(self, idx):
         x, sr, y, speaker_id, chapter_id, utterance_id = self.dataset[idx]
         assert sr == self.sr, sr
-        return torch.squeeze(x, 0), y.lower()
+        return torch.squeeze(x, 0), y.lower().replace("'", '')
 
     def __repr__(self):
         return f'LibriSpeech()'
