@@ -33,9 +33,12 @@ class Trainer:
             self.device = torch.cuda.current_device()
             self.model = torch.nn.DataParallel(self.model).to(self.device)
 
-    def checkpoint(self, name):
+    def checkpoint(self, name, optimizer, scaler):
         base = wandb.run.dir if wandb.run.dir != '/' else '.'
         torch.save(self._model().state_dict(), os.path.join(base, name))
+        torch.save(optimizer.state_dict(), os.path.join(base, name + '.opt'))
+        torch.save(scaler.state_dict(), os.path.join(base, name + '.scaler'))
+        wandb.log({'checkpoints': 1, 'name': name})
 
     def _model(self):
         is_data_paralell = hasattr(self.model, 'module')
@@ -116,8 +119,8 @@ class Trainer:
                     lr = schedule.get_last_lr()[0]
                     msg = f'{epoch+1}:{it} loss {loss.item():.5f} lr {lr:e}'
                     pbar.set_description(msg)
-                    wandb.log({'learning rate': lr})
-                    wandb.log({'train loss': loss})
+                    wandb.log({'learning-rate': lr})
+                    wandb.log({'train-loss': loss})
 
                 else:
 
@@ -134,15 +137,15 @@ class Trainer:
             train_loss, metrics = run_epoch('train')
             if train_loss < best['train']:
                 best['train'] = train_loss
-                self.checkpoint(utils.TRAIN_CHECKPOINT)
+                self.checkpoint(utils.TRAIN_CHECKPOINT, optimizer, scaler)
 
             if self.testset is not None:
                 test_loss, metrics = run_epoch('test')
-                wandb.log({'test loss': test_loss})
-                wandb.log({'test metrics': metrics.to_dict()})
+                wandb.log({'test-loss': test_loss})
+                wandb.log({'test-metrics': metrics.to_dict()})
                 if test_loss < best['test']:
                     best['test'] = test_loss
-                    self.checkpoint(utils.TEST_CHECKPOINT)
+                    self.checkpoint(utils.TEST_CHECKPOINT, optimizer, scaler)
 
 
 class HParams(utils.HParams):
