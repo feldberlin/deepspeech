@@ -29,10 +29,9 @@ class DeepSpeech(nn.Module):
                               kernel_size=(cfg.n_mels, cfg.kernel_width))
 
         self.dense_a = nn.Linear(cfg.n_hidden, cfg.n_hidden)
-        self.dense_b = nn.Linear(cfg.n_hidden, cfg.n_hidden)
 
         # gru instead of vanilla rnn in paper
-        self.gru = nn.GRU(cfg.n_hidden, cfg.n_hidden,
+        self.gru = nn.RNN(cfg.n_hidden, cfg.n_hidden,
                           bidirectional=True, batch_first=True)
 
         # head
@@ -55,7 +54,6 @@ class DeepSpeech(nn.Module):
 
             # dense, gru
             x = F.relu(self.dense_a(x))
-            x = F.relu(self.dense_b(x))
             x = F.relu(self.gru(x)[0])
 
             # sum over last dimension, fwd and bwd

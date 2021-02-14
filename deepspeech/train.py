@@ -43,10 +43,11 @@ class Trainer:
 
     def train(self):
         model, cfg, model_cfg = self.model, self.cfg, self.model_cfg
-        optimizer = torch.optim.AdamW(
+        optimizer = torch.optim.SGD(
             model.parameters(),
             lr=cfg.learning_rate,
-            betas=cfg.betas
+            momentum=0.9,
+            weight_decay=0
         )
 
         # half precision gradient scaler
@@ -157,7 +158,7 @@ class HParams(utils.HParams):
     batch_size = 128
 
     # the learning rate
-    learning_rate = 22e-4
+    learning_rate = 0.006
 
     # adam betas
     betas = (0.9, 0.95)

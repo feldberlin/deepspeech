@@ -4,6 +4,8 @@ __pycache__/
 wandb/
 
 nbs/scratch.ipynb
+nbs/waves_yesno
+nbs/waves_yesno.tar.gz
 
 checkpoint.*
 config.yaml
