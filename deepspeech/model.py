@@ -28,8 +28,6 @@ class DeepSpeech(nn.Module):
                               stride=cfg.stride,
                               kernel_size=(cfg.n_mels, cfg.kernel_width))
 
-        self.dense_a = nn.Linear(cfg.n_hidden, cfg.n_hidden)
-
         # gru instead of vanilla rnn in paper
         self.gru = nn.RNN(cfg.n_hidden, cfg.n_hidden,
                           bidirectional=True, batch_first=True)
@@ -53,7 +51,6 @@ class DeepSpeech(nn.Module):
             x = torch.squeeze(x, 2).permute(0, 2, 1)  # B, W, C
 
             # dense, gru
-            x = F.relu(self.dense_a(x))
             x = F.relu(self.gru(x)[0])
 
             # sum over last dimension, fwd and bwd
@@ -68,7 +65,7 @@ class DeepSpeech(nn.Module):
             loss = None
             if y is not None and ny is not None:
                 nx = self.cfg.frame_lengths(nx)
-                xctc = x.permute(1, 0, 2)  # W, B, C
+                xctc = x.transpose(0, 1).contiguous()  # W, B, C
                 loss = F.ctc_loss(xctc, y, nx, ny)
 
             return x, loss

@@ -45,7 +45,7 @@ class Trainer:
         model, cfg, model_cfg = self.model, self.cfg, self.model_cfg
         optimizer = torch.optim.SGD(
             model.parameters(),
-            lr=cfg.learning_rate,
+            lr=0.006,
             momentum=0.9,
             weight_decay=0
         )
