@@ -6,6 +6,9 @@ wandb/
 nbs/waves_yesno
 nbs/waves_yesno.tar.gz
 
+waves_yesno
+waves_yesno.tar.gz
+
 checkpoint.*
 config.yaml
 
