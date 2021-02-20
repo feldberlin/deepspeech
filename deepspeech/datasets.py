@@ -40,7 +40,7 @@ def batch(cfg):
 
 def spec_augment(cfg, masked=True):
     tt = nn.Sequential(
-        ta.transforms.MFCC(sample_rate=cfg.sampling_rate, n_mfcc=20),
+        ta.transforms.MFCC(sample_rate=cfg.sampling_rate, n_mfcc=cfg.n_mels),
         ta.transforms.FrequencyMasking(freq_mask_param=cfg.max_fq_mask),
         ta.transforms.TimeMasking(time_mask_param=cfg.max_time_mask)
     )

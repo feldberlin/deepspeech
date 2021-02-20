@@ -83,7 +83,7 @@ class HParams(utils.HParams):
     n_fft_ms = 20
 
     # number of mel filter banks
-    n_mels = 40
+    n_mels = 20
 
     # convolution kernel width
     kernel_width = 9
@@ -91,7 +91,7 @@ class HParams(utils.HParams):
     # network depth
     n_hidden = 2046
 
-    # first layer stride. value of 2 will half the frequency
+    # first layer stride. value of 2 will halve the frequency
     stride = 2
 
     # graphemes. first char is blank
