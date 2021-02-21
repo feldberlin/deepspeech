@@ -43,18 +43,42 @@ def test_hparams_graphemes_idx():
 def test_deepspeech_fwd():
     batch_size = 5
     p = model.HParams()
+    transform = datasets.transform(p)
+    m = model.DeepSpeech(p)
+
+    # follow the same order as in data loader and trainer
+    x = [transform(torch.rand(p.sampling_rate)) for x in range(batch_size)]
+    y = np.random.choice(['yes', 'no'], batch_size)
+    x, nx, y, ny = datasets.batch(p)(zip(x, y))
+
+    "need: (B, H, W) batches of melspecs, (B, W) batches of graphemes."
+    print(x.shape, nx, y.shape, ny)
+
+    x, _ = m.forward(x, nx, y, ny)
+
+    assert x.shape == (
+        batch_size,
+        49,
+        p.n_graphemes()
+    )
+
+
+def test_deepspeech_fwd_augmented():
+    batch_size = 5
+    p = model.HParams()
+    transform = datasets.transform(p)
     augment = datasets.spec_augment(p)
     m = model.DeepSpeech(p)
 
     # follow the same order as in data loader and trainer
-    x = [augment(torch.rand(p.sampling_rate)) for x in range(batch_size)]
+    x = [augment(transform(torch.rand(p.sampling_rate))) for x in range(batch_size)]
     y = np.random.choice(['yes', 'no'], batch_size)
     x, nx, y, ny = datasets.batch(p)(zip(x, y))
     x, _ = m.forward(x, nx, y, ny)
 
     assert x.shape == (
         batch_size,
-        51,
+        49,
         p.n_graphemes()
     )
 

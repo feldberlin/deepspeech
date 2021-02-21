@@ -28,7 +28,6 @@ def test_spec_augmented_dataset():
 
     d = datasets.SpecAugmented(dict(data), p, masked=True)
     assert len(d) == 3
-    assert str(d) == 'SpecAugmented()'
 
 
 def test_splitting():
@@ -40,7 +39,3 @@ def test_splitting():
 
     subsets = datasets.splits(list(data), p)
     assert len(subsets) == 2
-    assert subsets[0].masked == True
-    assert subsets[1].masked == False
-    for s in subsets:
-        assert isinstance(s, datasets.SpecAugmented)

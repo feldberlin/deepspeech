@@ -8,6 +8,9 @@ import torchaudio as ta
 
 from deepspeech import utils
 
+# alphabet for the yesno dataset
+YESNO_GRAPHEMES = np.array([c for c in 'εeklnor '])
+
 
 # batching
 
@@ -36,49 +39,41 @@ def batch(cfg):
     return fn
 
 
-# transforms
+# transforms and augmentations
 
-def spec_augment(cfg, masked=True):
-    tt = nn.Sequential(
-        ta.transforms.MelSpectrogram(**cfg.mel_config()),
-        Rescaled(),
+def transform(cfg):
+    return KaldiMFCC(cfg)
+
+
+def spec_augment(cfg):
+    return nn.Sequential(
         ta.transforms.FrequencyMasking(freq_mask_param=cfg.max_fq_mask),
         ta.transforms.TimeMasking(time_mask_param=cfg.max_time_mask)
     )
 
-    if masked:
-        return tt
-    else:
-        return tt[:-2]
 
+class KaldiMFCC(nn.Module):
+    "Use kaldi compatible mfcss, since they work better."
 
-class Rescaled(nn.Module):
-    "Log10 on the melspectogram, followed by scaling to roughly -1 to 1"
-
-    def __init__(self):
+    def __init__(self, cfg):
         super().__init__()
-        self.amp_to_db = ta.transforms.AmplitudeToDB()
+        self.cfg = cfg
 
     def forward(self, x):
-        return self.amp_to_db(x) / 100.0  # DB scale is around -100 to 100
+        x = x.unsqueeze(0)  # introduce stereo dimension
+        return ta.compliance.kaldi.mfcc(x, **self.cfg.mfcc_config()).T
 
 
 # datasets
 
-def splits(dataset, cfg, unmasked_trainset=False):
-    """Split according to cfg.splits. Wraps each split in SpecAugment. The
-    first split is the trainset and applies SpecAugment masking. Uses cfg.seed
-    for reproducible splits.
+def splits(dataset, cfg):
+    """Split according to cfg.splits. Uses cfg.seed for reproducible splits.
     """
 
     assert sum(cfg.splits) == 1.0
     gen = torch.Generator().manual_seed(cfg.seed)
     counts = [round(x * len(dataset)) for x in cfg.splits]
-    return [
-        SpecAugmented(s, cfg, masked=not unmasked_trainset and i == 0)
-        for i, s
-        in enumerate(td.random_split(dataset, counts, generator=gen))
-    ]
+    return td.random_split(dataset, counts, generator=gen)
 
 
 class SpecAugmented(Dataset):
@@ -89,7 +84,7 @@ class SpecAugmented(Dataset):
 
     def __init__(self, dataset, cfg, masked):
         super().__init__()
-        self.spec_augment = spec_augment(cfg, masked)
+        self.spec_augment = spec_augment(cfg)
         self.dataset = dataset
         self.masked = masked
 
@@ -99,41 +94,33 @@ class SpecAugmented(Dataset):
     def __getitem__(self, idx):
         x = self.dataset[idx][0]
         y = self.dataset[idx][1]
-        return self.spec_augment(x), y
-
-    def __repr__(self):
-        return f'SpecAugmented()'
-
-
-# alphabet for the yesno dataset
-YESNO_GRAPHEMES = np.array([c for c in 'εeklnor '])
+        if self.masked: x = self.spec_augment(x)
+        return x, y
 
 
 class YesNo(Dataset):
     """YesNo is a 60 example test dataset. Targets have been converted to
-    english to avoid mysterious issues with right to left text.
+    english graphemes to avoid mysterious issues with right to left text.
     """
-
 
     def __init__(self, cfg):
         super().__init__()
-        root=cfg.datasets_dir
-        self.dataset = ta.datasets.YESNO(root=root, download=True)
+        self.ds = ta.datasets.YESNO(root=cfg.datasets_dir, download=True)
+        self.transform = transform(cfg)
         self.sr = cfg.sampling_rate
 
     def __len__(self):
-        return len(self.dataset)
+        return len(self.ds)
 
     def __getitem__(self, idx):
-        x, sr, y = self.dataset[idx]
+        xin, sr, yin = self.ds[idx]
         assert sr == self.sr, sr
-        return torch.squeeze(x, 0), self.decode(y)
+        x = self.transform(torch.squeeze(xin, 0))
+        y = self.decode(yin)
+        return x, y
 
     def decode(self, y):
         return ' '.join(['ken' if el == 1 else 'lor' for el in y])
-
-    def __repr__(self):
-        return f'YesNo()'
 
 
 class LibriSpeech(Dataset):
@@ -142,17 +129,16 @@ class LibriSpeech(Dataset):
 
     def __init__(self, cfg):
         super().__init__()
-        root=cfg.datasets_dir
-        self.dataset = ta.datasets.LIBRISPEECH(root=root, download=True)
+        self.ds = ta.datasets.LIBRISPEECH(root=cfg.datasets_dir, download=True)
+        self.transform = transform(cfg)
         self.sr = cfg.sampling_rate
 
     def __len__(self):
-        return len(self.dataset)
+        return len(self.ds)
 
     def __getitem__(self, idx):
-        x, sr, y, speaker_id, chapter_id, utterance_id = self.dataset[idx]
+        x, sr, y, speaker_id, chapter_id, utterance_id = self.ds[idx]
         assert sr == self.sr, sr
-        return torch.squeeze(x, 0), y.lower().replace("'", '')
-
-    def __repr__(self):
-        return f'LibriSpeech()'
+        x = self.transform(torch.squeeze(x, 0))
+        y = y.lower().replace("'", '')
+        return x, y

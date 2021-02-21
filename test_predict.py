@@ -21,15 +21,14 @@ def test_greedy():
 def test_decode_argmax():
     batch_size = 3
     p = model.HParams(mixed_precision=False)
+    tfm = datasets.transform(p)
     m = model.DeepSpeech(p)
     data = zip(
-        [torch.rand(p.sampling_rate) for x in range(batch_size)],
+        [tfm(torch.rand(p.sampling_rate)) for x in range(batch_size)],
         ['yes', 'no', 'yes']
     )
 
-    d = datasets.SpecAugmented(list(data), p, masked=True)
-    batch = [d[i] for i in range(batch_size)]
-    x, xn, y, yn = datasets.batch(p)(batch)
+    x, xn, y, yn = datasets.batch(p)(data)
     yhat, _ = predict.predict(m, x, xn)
     decoded = predict.decode_argmax(yhat, p)  # make sure we are decodable
     assert len(decoded) == batch_size

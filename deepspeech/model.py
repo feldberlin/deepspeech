@@ -31,8 +31,8 @@ class DeepSpeech(nn.Module):
         self.dense_a = nn.Linear(cfg.n_hidden, cfg.n_hidden)
         self.dense_b = nn.Linear(cfg.n_hidden, cfg.n_hidden)
 
-        # gru instead of vanilla rnn in paper
-        self.gru = nn.GRU(cfg.n_hidden, cfg.n_hidden,
+        # vanilla rnn as in paper
+        self.gru = nn.RNN(cfg.n_hidden, cfg.n_hidden,
                           bidirectional=True, batch_first=True)
 
         # head
@@ -43,7 +43,7 @@ class DeepSpeech(nn.Module):
             utils.load_chkpt(self, run_path)
 
     def forward(self, x, nx, y=None, ny=None):
-        "(B, H, W) batches of melspecs, (B, W) batches of graphemes."
+        "(B, H, W) batches of mfccs, (B, W) batches of graphemes."
 
         with amp.autocast(enabled=self.cfg.mixed_precision):
             B, H, W = x.shape
@@ -88,7 +88,7 @@ class HParams(utils.HParams):
     n_fft_ms = 20
 
     # number of mel filter banks
-    n_mels = 40
+    n_mels = 20
 
     # convolution kernel width
     kernel_width = 9
@@ -141,10 +141,9 @@ class HParams(utils.HParams):
         lengths = [self.n_downsampled_frames(x) for x in in_lengths]
         return torch.tensor(lengths)
 
-    def mel_config(self):
+    def mfcc_config(self):
         return {
-            'sample_rate': self.sampling_rate,
-            'n_fft': self.n_fft(),
-            'n_mels': self.n_mels,
-            'normalized': True,
+            'sample_frequency': self.sampling_rate,
+            'num_mel_bins': self.n_mels,
+            'num_ceps': self.n_mels
         }
